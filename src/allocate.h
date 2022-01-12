@@ -5,15 +5,15 @@
 
 struct kissat;
 
-void *kissat_malloc (struct kissat *, size_t bytes);
-void kissat_free (struct kissat *, void *, size_t bytes);
+void *kissat_malloc(struct kissat *, size_t bytes);
+void kissat_free(struct kissat *, void *, size_t bytes);
 
-void *kissat_calloc (struct kissat *, size_t n, size_t size);
-void *kissat_nalloc (struct kissat *, size_t n, size_t size);
-void kissat_dealloc (struct kissat *, void *ptr, size_t n, size_t size);
+void *kissat_calloc(struct kissat *, size_t n, size_t size);
+void *kissat_nalloc(struct kissat *, size_t n, size_t size);
+void kissat_dealloc(struct kissat *, void *ptr, size_t n, size_t size);
 
-void *kissat_realloc (struct kissat *, void *, size_t old, size_t bytes);
-void *kissat_nrealloc (struct kissat *, void *, size_t o, size_t n, size_t);
+void *kissat_realloc(struct kissat *, void *, size_t old, size_t bytes);
+void *kissat_nrealloc(struct kissat *, void *, size_t o, size_t n, size_t);
 
 #define CALLOC(P,N) \
 do { \

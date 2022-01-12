@@ -14,19 +14,18 @@
 typedef struct assigned assigned;
 struct clause;
 
-struct assigned
-{
-  unsigned level:28;
+struct assigned {
+  unsigned level: 28;
 
-  bool analyzed:1;
-  bool poisoned:1;
-  bool removable:1;
-  bool shrinkable:1;
+  bool analyzed: 1;
+  bool poisoned: 1;
+  bool removable: 1;
+  bool shrinkable: 1;
 
-  unsigned trail:30;
+  unsigned trail: 30;
 
-  bool binary:1;
-  bool redundant:1;
+  bool binary: 1;
+  bool redundant: 1;
 
   unsigned reason;
 };
@@ -48,16 +47,16 @@ struct assigned
 struct kissat;
 struct clause;
 
-void kissat_assign_unit (struct kissat *, unsigned lit, const char *);
-void kissat_learned_unit (struct kissat *, unsigned lit);
-void kissat_original_unit (struct kissat *, unsigned lit);
+void kissat_assign_unit(struct kissat *, unsigned lit, const char *);
+void kissat_learned_unit(struct kissat *, unsigned lit);
+void kissat_original_unit(struct kissat *, unsigned lit);
 
-void kissat_assign_decision (struct kissat *, unsigned lit);
+void kissat_assign_decision(struct kissat *, unsigned lit);
 
-void kissat_assign_binary (struct kissat *, bool, unsigned, unsigned);
+void kissat_assign_binary(struct kissat *, bool, unsigned, unsigned);
 
-void kissat_assign_reference (struct kissat *, unsigned lit,
-			      reference, struct clause *);
+void kissat_assign_reference(struct kissat *, unsigned lit,
+      reference, struct clause *);
 
 #endif
 

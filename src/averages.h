@@ -7,8 +7,7 @@
 
 typedef struct averages averages;
 
-struct averages
-{
+struct averages {
   bool initialized;
   smooth fast_glue, slow_glue;
 #ifndef QUIET
@@ -20,7 +19,7 @@ struct averages
 
 struct kissat;
 
-void kissat_init_averages (struct kissat *, averages *);
+void kissat_init_averages(struct kissat *, averages *);
 
 #define AVERAGES (solver->averages[solver->stable])
 

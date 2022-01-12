@@ -79,7 +79,7 @@ do { \
   tissat_fatal (__VA_ARGS__); \
 } while (0)
 
-void tissat_init_solver (struct kissat *);
+void tissat_init_solver(struct kissat *);
 
 #define DECLARE_AND_INIT_SOLVER(SOLVER) \
   kissat dummy_solver, *solver = &dummy_solver; \

@@ -15,60 +15,55 @@ typedef struct binary_watch binary_watch;
 typedef struct blocking_watch blocking_watch;
 typedef struct large_watch large_watch;
 
-struct watch_type
-{
+struct watch_type {
 #ifdef KISSAT_IS_BIG_ENDIAN
-  bool binary:1;
-  unsigned padding:2;
-  unsigned lit:29;
+  bool binary: 1;
+  unsigned padding: 2;
+  unsigned lit: 29;
 #else
-  unsigned lit:29;
-  unsigned padding:2;
-  bool binary:1;
+  unsigned lit: 29;
+  unsigned padding: 2;
+  bool binary: 1;
 #endif
 };
 
-struct binary_watch
-{
+struct binary_watch {
 #ifdef KISSAT_IS_BIG_ENDIAN
-  bool binary:1;
-  bool redundant:1;
-  bool hyper:1;
-  unsigned lit:29;
+  bool binary: 1;
+  bool redundant: 1;
+  bool hyper: 1;
+  unsigned lit: 29;
 #else
-  unsigned lit:29;
-  bool hyper:1;
-  bool redundant:1;
-  bool binary:1;
+  unsigned lit: 29;
+  bool hyper: 1;
+  bool redundant: 1;
+  bool binary: 1;
 #endif
 };
 
-struct large_watch
-{
+struct large_watch {
 #ifdef KISSAT_IS_BIG_ENDIAN
-  bool binary:1;
-  unsigned ref:31;
+  bool binary: 1;
+  unsigned ref: 31;
 #else
-  unsigned ref:31;
-  bool binary:1;
+  unsigned ref: 31;
+  bool binary: 1;
 #endif
 };
 
-struct blocking_watch
-{
+struct blocking_watch {
 #ifdef KISSAT_IS_BIG_ENDIAN
-  bool binary:1;
-  unsigned padding:2;
-  unsigned lit:29;
+  bool binary: 1;
+  unsigned padding: 2;
+  unsigned lit: 29;
 #else
-  unsigned lit:29;
-  unsigned padding:2;
-  bool binary:1;
+  unsigned lit: 29;
+  unsigned padding: 2;
+  bool binary: 1;
 #endif
 };
 
-union watch
-{
+union watch {
   watch_type type;
   binary_watch binary;
   blocking_watch blocking;
@@ -86,57 +81,48 @@ typedef STACK (litwatch) litwatches;
 typedef STACK (litpair) litpairs;
 // *INDENT-ON*
 
-struct litwatch
-{
+struct litwatch {
   unsigned lit;
   watch watch;
 };
 
-struct litpair
-{
+struct litpair {
   unsigned lits[2];
 };
 
-static inline litpair
-kissat_litpair (unsigned lit, unsigned other)
-{
+static inline litpair kissat_litpair(unsigned lit, unsigned other) {
   litpair res;
   res.lits[0] = lit < other ? lit : other;
   res.lits[1] = lit < other ? other : lit;
   return res;
 }
 
-static inline watch
-kissat_binary_watch (unsigned lit, bool redundant, bool hyper)
-{
-  assert (redundant || !hyper);
+static inline watch kissat_binary_watch(unsigned lit, bool redundant,
+      bool hyper) {
+  assert(redundant || !hyper);
   watch res;
   res.binary.lit = lit;
   res.binary.redundant = redundant;
   res.binary.hyper = hyper;
   res.binary.binary = true;
-  assert (res.type.binary);
+  assert(res.type.binary);
   return res;
 }
 
-static inline watch
-kissat_large_watch (reference ref)
-{
+static inline watch kissat_large_watch(reference ref) {
   watch res;
   res.large.ref = ref;
   res.large.binary = false;
-  assert (!res.type.binary);
+  assert(!res.type.binary);
   return res;
 }
 
-static inline watch
-kissat_blocking_watch (unsigned lit)
-{
+static inline watch kissat_blocking_watch(unsigned lit) {
   watch res;
   res.blocking.lit = lit;
   res.blocking.padding = 0;
   res.blocking.binary = false;
-  assert (!res.type.binary);
+  assert(!res.type.binary);
   return res;
 }
 
@@ -204,13 +190,13 @@ do { \
   WATCH ## _PTR != WATCH ## _END && ((WATCH = *WATCH ## _PTR), true); \
   ++WATCH ## _PTR
 
-void kissat_remove_blocking_watch (struct kissat *, watches *, reference);
+void kissat_remove_blocking_watch(struct kissat *, watches *, reference);
 
-void kissat_flush_large_watches (struct kissat *);
-void kissat_watch_large_clauses (struct kissat *);
+void kissat_flush_large_watches(struct kissat *);
+void kissat_watch_large_clauses(struct kissat *);
 
-void kissat_connect_irredundant_large_clauses (struct kissat *);
+void kissat_connect_irredundant_large_clauses(struct kissat *);
 
-void kissat_flush_large_connected (struct kissat *);
+void kissat_flush_large_connected(struct kissat *);
 
 #endif

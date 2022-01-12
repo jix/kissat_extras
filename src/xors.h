@@ -5,6 +5,6 @@
 
 struct kissat;
 
-bool kissat_find_xor_gate (struct kissat *, unsigned lit, unsigned negative);
+bool kissat_find_xor_gate(struct kissat *, unsigned lit, unsigned negative);
 
 #endif

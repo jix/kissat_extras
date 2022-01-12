@@ -5,56 +5,65 @@
 
 #include "test.h"
 
-static void
-test_terminate (int bit, const char *name,
-		bool walkinitially,
-		int probeinit, int eliminateinit, int rephaseint,
-		const char *cnf)
-{
+static void test_terminate(int bit, const char *name,
+      bool walkinitially,
+      int probeinit, int eliminateinit, int rephaseint,
+      const char *cnf) {
 #ifdef NOPTIONS
-  if (walkinitially)
+  if (walkinitially) {
     return;
-  if (probeinit >= 0)
+  }
+  if (probeinit >= 0) {
     return;
-  if (eliminateinit >= 0)
+  }
+  if (eliminateinit >= 0) {
     return;
-  if (rephaseint >= 0)
+  }
+  if (rephaseint >= 0) {
     return;
+  }
 #endif
-  kissat *solver = kissat_init ();
-  tissat_init_solver (solver);
+  kissat *solver = kissat_init();
+  tissat_init_solver(solver);
 #ifndef NOPTIONS
-  if (rephaseint > 0)
+  if (rephaseint > 0) {
     solver->options.rephaseinit = solver->options.rephaseint = rephaseint;
-  if (walkinitially)
+  }
+  if (walkinitially) {
     solver->options.walkinitially = true;
-  if (probeinit >= 0)
+  }
+  if (probeinit >= 0) {
     solver->options.probeinit = probeinit;
-  if (eliminateinit >= 0)
+  }
+  if (eliminateinit >= 0) {
     solver->options.eliminateinit = eliminateinit;
+  }
 #endif
   file file;
-  const bool opened = kissat_open_to_read_file (&file, cnf);
-  if (!opened)
-    FATAL ("could not read '%s'", cnf);
-  tissat_verbose ("parsing '%s'", cnf);
+  const bool opened = kissat_open_to_read_file(&file, cnf);
+  if (!opened) {
+    FATAL("could not read '%s'", cnf);
+  }
+  tissat_verbose("parsing '%s'", cnf);
   uint64_t lineno;
   int max_var;
   const char *error =
-    kissat_parse_dimacs (solver, RELAXED_PARSING, &file, &lineno, &max_var);
-  if (error)
-    FATAL ("unexpected parse error: %s", error);
+        kissat_parse_dimacs(solver, RELAXED_PARSING, &file, &lineno, &max_var);
+  if (error) {
+    FATAL("unexpected parse error: %s", error);
+  }
   (void) error;
-  kissat_close_file (&file);
-  tissat_verbose ("solving '%s' forcing 'TERMINATED (%s)'", cnf, name);
-  assert (0 <= bit), assert (bit < 64);
+  kissat_close_file(&file);
+  tissat_verbose("solving '%s' forcing 'TERMINATED (%s)'", cnf, name);
+  assert(0 <= bit), assert(bit < 64);
   solver->termination.flagged = ((uint64_t) 1 << bit);
-  int res = kissat_solve (solver);
-  if (res)
-    FATAL ("solver returned '%d' but expected '0'", res);
-  else
-    tissat_verbose ("solver returned '0' as expected");
-  kissat_release (solver);
+  int res = kissat_solve(solver);
+  if (res) {
+    FATAL("solver returned '%d' but expected '0'", res);
+  } else {
+    tissat_verbose("solver returned '0' as expected");
+  }
+  kissat_release(solver);
 }
 
 // *INDENT-OFF*
@@ -115,9 +124,7 @@ tissat_schedule_terminate (void)
 
 #else
 
-void
-tissat_schedule_terminate (void)
-{
+void tissat_schedule_terminate(void) {
 }
 
 #endif

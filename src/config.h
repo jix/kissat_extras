@@ -9,7 +9,7 @@ CONFIGURATION (unsat) \
 
 struct kissat;
 
-void kissat_configuration_usage (void);
+void kissat_configuration_usage(void);
 
 #endif
 #endif

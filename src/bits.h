@@ -9,22 +9,18 @@ typedef unsigned bits;
 
 struct kissat;
 
-bits *kissat_new_bits (struct kissat *, size_t size);
-void kissat_delete_bits (struct kissat *, bits *, size_t size);
+bits *kissat_new_bits(struct kissat *, size_t size);
+void kissat_delete_bits(struct kissat *, bits *, size_t size);
 
-static inline size_t
-kissat_bits_size_in_words (size_t size)
-{
-  assert (sizeof (bits) == 4);
+static inline size_t kissat_bits_size_in_words(size_t size) {
+  assert(sizeof(bits) == 4);
   return (size >> 5) + ! !(size & 31);
 }
 
-static inline bool
-kissat_get_bit (const bits * bits, size_t size, size_t bit)
-{
-  assert (bit < size);
+static inline bool kissat_get_bit(const bits *bits, size_t size, size_t bit) {
+  assert(bit < size);
   const size_t x = (bit >> 5);
-  assert (x < kissat_bits_size_in_words (size));
+  assert(x < kissat_bits_size_in_words(size));
   const unsigned word = bits[x];
   const unsigned y = (bit & 31);
   const unsigned mask = (1u << y);
@@ -34,12 +30,10 @@ kissat_get_bit (const bits * bits, size_t size, size_t bit)
   return res;
 }
 
-static inline void
-kissat_set_bit_to_true (bits * bits, size_t size, size_t bit)
-{
-  assert (bit < size);
+static inline void kissat_set_bit_to_true(bits *bits, size_t size, size_t bit) {
+  assert(bit < size);
   const size_t x = (bit >> 5);
-  assert (x < kissat_bits_size_in_words (size));
+  assert(x < kissat_bits_size_in_words(size));
   unsigned word = bits[x];
   const unsigned y = (bit & 31);
   const unsigned mask = (1u << y);
@@ -48,12 +42,11 @@ kissat_set_bit_to_true (bits * bits, size_t size, size_t bit)
   (void) size;
 }
 
-static inline void
-kissat_set_bit_to_false (bits * bits, size_t size, size_t bit)
-{
-  assert (bit < size);
+static inline void kissat_set_bit_to_false(bits *bits, size_t size,
+      size_t bit) {
+  assert(bit < size);
   const size_t x = (bit >> 5);
-  assert (x < kissat_bits_size_in_words (size));
+  assert(x < kissat_bits_size_in_words(size));
   unsigned word = bits[x];
   const unsigned y = (bit & 31);
   const unsigned mask = (1u << y);
@@ -62,12 +55,11 @@ kissat_set_bit_to_false (bits * bits, size_t size, size_t bit)
   (void) size;
 }
 
-static inline void
-kissat_set_bit_explicitly (bits * bits, size_t size, size_t bit, bool value)
-{
-  assert (bit < size);
+static inline void kissat_set_bit_explicitly(bits *bits, size_t size,
+      size_t bit, bool value) {
+  assert(bit < size);
   const size_t x = (bit >> 5);
-  assert (x < kissat_bits_size_in_words (size));
+  assert(x < kissat_bits_size_in_words(size));
   unsigned word = bits[x];
   const unsigned y = (bit & 31);
   const unsigned clear = (1 << y);

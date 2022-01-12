@@ -13,8 +13,7 @@ struct kissat;
 typedef struct cache cache;
 typedef struct line line;
 
-struct line
-{
+struct line {
   unsigned vars;
   unsigned unsatisfied;
   uint64_t signature;
@@ -31,8 +30,7 @@ typedef STACK (line) lines;
 
 #define kissat_size_
 
-struct cache
-{
+struct cache {
   bool valid;
   bool looked;
   unsigned vars;
@@ -41,10 +39,10 @@ struct cache
   lines lines;
 };
 
-void kissat_clear_cache (struct kissat *);
-void kissat_release_cache (struct kissat *);
-bool kissat_insert_cache (struct kissat *, unsigned unsatisfied);
-void kissat_update_cache (struct kissat *, unsigned unsatisfied);
-bits *kissat_lookup_cache (struct kissat *);
+void kissat_clear_cache(struct kissat *);
+void kissat_release_cache(struct kissat *);
+bool kissat_insert_cache(struct kissat *, unsigned unsatisfied);
+void kissat_update_cache(struct kissat *, unsigned unsatisfied);
+bits *kissat_lookup_cache(struct kissat *);
 
 #endif

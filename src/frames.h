@@ -9,8 +9,7 @@
 typedef struct frame frame;
 typedef struct slice slice;
 
-struct frame
-{
+struct frame {
   bool promote;
   unsigned decision;
   unsigned trail;

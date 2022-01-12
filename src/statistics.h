@@ -345,7 +345,7 @@ METRICS_COUNTERS_AND_STATISTICS
 
 struct kissat;
 
-void kissat_statistics_print (struct kissat *, bool verbose);
+void kissat_statistics_print(struct kissat *, bool verbose);
 
 // Format widths of individual parts during printing statistics lines.
 // Shared between 'statistics.c' and 'resources.c' to align the printing.
@@ -381,7 +381,7 @@ do { \
 #ifndef NDEBUG
 
 struct kissat;
-void kissat_check_statistics (struct kissat *);
+void kissat_check_statistics(struct kissat *);
 
 #else
 

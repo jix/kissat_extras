@@ -47,34 +47,32 @@ PROF(transitive,2) \
 PROF(vivify,2) \
 PROF(walking,2) \
 
-struct profile
-{
+struct profile {
   int level;
   const char *name;
   double entered;
   double time;
 };
 
-struct profiles
-{
+struct profiles {
 #define PROF(NAME,LEVEL) \
   profile NAME;
   PROFS
 #undef PROF
-  STACK (profile *) stack;
+  STACK(profile *) stack;
 };
 
 struct kissat;
 
-void kissat_init_profiles (profiles *);
-void kissat_profiles_print (struct kissat *);
-void kissat_start (struct kissat *, profile *);
-void kissat_stop (struct kissat *, profile *);
+void kissat_init_profiles(profiles *);
+void kissat_profiles_print(struct kissat *);
+void kissat_start(struct kissat *, profile *);
+void kissat_stop(struct kissat *, profile *);
 
-void kissat_stop_search_and_start_simplifier (struct kissat *, profile *);
-void kissat_stop_simplifier_and_resume_search (struct kissat *, profile *);
+void kissat_stop_search_and_start_simplifier(struct kissat *, profile *);
+void kissat_stop_simplifier_and_resume_search(struct kissat *, profile *);
 
-double kissat_time (struct kissat *);
+double kissat_time(struct kissat *);
 
 #define PROFILE(NAME) (solver->profiles.NAME)
 

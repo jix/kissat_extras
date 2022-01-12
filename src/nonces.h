@@ -5,12 +5,11 @@
 
 #include <stdint.h>
 
-typedef
-STACK (uint64_t)
-  nonces;
+typedef STACK(uint64_t)
+nonces;
 
-     struct kissat;
+struct kissat;
 
-     void kissat_init_nonces (struct kissat *);
+void kissat_init_nonces(struct kissat *);
 
 #endif

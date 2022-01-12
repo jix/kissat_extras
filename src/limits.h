@@ -14,79 +14,65 @@ typedef struct limited limited;
 typedef struct limits limits;
 typedef struct waiting waiting;
 
-struct bounds
-{
-  struct
-  {
+struct bounds {
+  struct {
     uint64_t max_bound_completed;
     unsigned additional_clauses;
     unsigned clause_size;
     unsigned occurrences;
   } eliminate;
 
-  struct
-  {
+  struct {
     unsigned clause_size;
     unsigned occurrences;
   } subsume;
 
-  struct
-  {
+  struct {
     unsigned clause_size;
   } xor;
 };
 
-struct changes
-{
-  struct
-  {
+struct changes {
+  struct {
     uint64_t added;
     uint64_t removed;
     unsigned units;
   } variables;
-  struct
-  {
+  struct {
     unsigned additional_clauses;
   } eliminate;
 };
 
-struct limits
-{
+struct limits {
   uint64_t conflicts;
   uint64_t decisions;
   uint64_t reports;
 
-  struct
-  {
+  struct {
     uint64_t ticks;
     uint64_t conflicts;
     uint64_t interval;
   } mode;
 
-  struct
-  {
-    struct
-    {
+  struct {
+    struct {
       uint64_t added;
       uint64_t removed;
     } variables;
     uint64_t conflicts;
   } eliminate;
 
-  struct
-  {
+  struct {
     uint64_t conflicts;
   } probe, reduce, rephase, restart;
 };
 
-struct limited
-{
+struct limited {
   bool conflicts;
   bool decisions;
 };
 
-struct enabled
-{
+struct enabled {
   bool autarky;
   bool eliminate;
   bool focus;
@@ -95,14 +81,12 @@ struct enabled
   bool rephase;
 };
 
-struct delay
-{
+struct delay {
   unsigned count;
   unsigned current;
 };
 
-struct delays
-{
+struct delays {
   delay autarky;
   delay backbone;
   delay bumpreasons;
@@ -113,45 +97,42 @@ struct delays
   delay ternary;
 };
 
-struct effort
-{
+struct effort {
   uint64_t eliminate;
   uint64_t probe;
 };
 
-struct waiting
-{
-  struct
-  {
+struct waiting {
+  struct {
     uint64_t reduce;
   } eliminate, probe;
 };
 
 struct kissat;
 
-changes kissat_changes (struct kissat *);
+changes kissat_changes(struct kissat *);
 
-bool kissat_changed (changes before, changes after);
+bool kissat_changed(changes before, changes after);
 
-void kissat_init_limits (struct kissat *);
+void kissat_init_limits(struct kissat *);
 
-uint64_t kissat_scale_delta (struct kissat *, const char *, uint64_t);
+uint64_t kissat_scale_delta(struct kissat *, const char *, uint64_t);
 
-uint64_t kissat_scale_limit (struct kissat *,
-			     const char *, uint64_t count, int base);
+uint64_t kissat_scale_limit(struct kissat *,
+      const char *, uint64_t count, int base);
 
 #define SCALE_LIMIT(COUNT,NAME) \
   kissat_scale_limit (solver, #NAME, \
                       solver->statistics.COUNT, GET_OPTION (NAME))
 
-double kissat_linear (uint64_t);
-double kissat_logn (uint64_t);
-double kissat_ndivlogn (uint64_t);
-double kissat_nlognlognlogn (uint64_t);
-double kissat_nlognlogn (uint64_t);
-double kissat_nlogn (uint64_t);
-double kissat_quadratic (uint64_t);
-double kissat_sqrt (uint64_t);
+double kissat_linear(uint64_t);
+double kissat_logn(uint64_t);
+double kissat_ndivlogn(uint64_t);
+double kissat_nlognlognlogn(uint64_t);
+double kissat_nlognlogn(uint64_t);
+double kissat_nlogn(uint64_t);
+double kissat_quadratic(uint64_t);
+double kissat_sqrt(uint64_t);
 
 #define LINEAR(COUNT) kissat_linear (COUNT)
 #define NDIVLOGN(COUNT) kissat_ndivlogn (COUNT)

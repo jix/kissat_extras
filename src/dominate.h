@@ -4,6 +4,6 @@
 struct kissat;
 struct clause;
 
-unsigned kissat_find_dominator (struct kissat *, unsigned, struct clause *);
+unsigned kissat_find_dominator(struct kissat *, unsigned, struct clause *);
 
 #endif

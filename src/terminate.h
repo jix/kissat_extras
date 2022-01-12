@@ -4,27 +4,27 @@
 #include "internal.h"
 
 #ifndef QUIET
-void kissat_report_termination (kissat *, const char *name,
-				const char *file, long lineno,
-				const char *fun);
+void kissat_report_termination(kissat *, const char *name,
+      const char *file, long lineno,
+      const char *fun);
 #endif
 
-static inline bool
-kissat_terminated (kissat * solver, int bit, const char *name,
-		   const char *file, long lineno, const char *fun)
-{
-  assert (0 <= bit), assert (bit < 64);
+static inline bool kissat_terminated(kissat *solver, int bit, const char *name,
+      const char *file, long lineno, const char *fun) {
+  assert(0 <= bit), assert(bit < 64);
 #ifdef COVERAGE
   const uint64_t mask = (uint64_t) 1 << bit;
-  if (!(solver->termination.flagged & mask))
+  if (!(solver->termination.flagged & mask)) {
     return false;
+  }
   solver->termination.flagged = ~(uint64_t) 0;
 #else
-  if (!solver->termination.flagged)
+  if (!solver->termination.flagged) {
     return false;
+  }
 #endif
 #ifndef QUIET
-  kissat_report_termination (solver, name, file, lineno, fun);
+  kissat_report_termination(solver, name, file, lineno, fun);
 #else
   (void) file;
   (void) fun;

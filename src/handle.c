@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-static void (*handler) (int);
+static void (*handler)(int);
 static volatile int caught_signal;
 static volatile bool handler_set;
 
@@ -30,23 +30,20 @@ kissat_reset_signal_handler (void)
 
 // *INDENT-ON*
 
-static void
-catch_signal (int sig)
-{
-  if (caught_signal)
+static void catch_signal(int sig) {
+  if (caught_signal) {
     return;
+  }
   caught_signal = sig;
-  assert (handler_set);
-  assert (handler);
-  handler (sig);
-  kissat_reset_signal_handler ();
-  raise (sig);
+  assert(handler_set);
+  assert(handler);
+  handler(sig);
+  kissat_reset_signal_handler();
+  raise(sig);
 }
 
-void
-kissat_init_signal_handler (void (*h) (int sig))
-{
-  assert (!handler);
+void kissat_init_signal_handler(void (*h)(int sig)) {
+  assert(!handler);
   handler = h;
   handler_set = true;
 #define SIGNAL(SIG) \
@@ -57,41 +54,37 @@ kissat_init_signal_handler (void (*h) (int sig))
 
 static volatile bool caught_alarm;
 static volatile bool alarm_handler_set;
-static void (*volatile SIGALRM_handler) (int);
-static void (*volatile handle_alarm) ();
+static void (*volatile SIGALRM_handler)(int);
+static void (*volatile handle_alarm)();
 
-static void
-catch_alarm (int sig)
-{
-  assert (sig == SIGALRM);
-  if (caught_alarm)
+static void catch_alarm(int sig) {
+  assert(sig == SIGALRM);
+  if (caught_alarm) {
     return;
+  }
   caught_alarm = true;
-  static void (*volatile handler) ();
+  static void (*volatile handler)();
   handler = handle_alarm;
-  if (!alarm_handler_set)
-    raise (sig);
-  assert (handler);
-  handler ();
+  if (!alarm_handler_set) {
+    raise(sig);
+  }
+  assert(handler);
+  handler();
 }
 
-void
-kissat_init_alarm (void (*handler) (void))
-{
-  assert (handler);
-  assert (!caught_alarm);
+void kissat_init_alarm(void (*handler)(void)) {
+  assert(handler);
+  assert(!caught_alarm);
   handle_alarm = handler;
   alarm_handler_set = true;
-  assert (!SIGALRM_handler);
-  SIGALRM_handler = signal (SIGALRM, catch_alarm);
+  assert(!SIGALRM_handler);
+  SIGALRM_handler = signal(SIGALRM, catch_alarm);
 }
 
-void
-kissat_reset_alarm (void)
-{
-  assert (alarm_handler_set);
-  assert (handle_alarm);
+void kissat_reset_alarm(void) {
+  assert(alarm_handler_set);
+  assert(handle_alarm);
   alarm_handler_set = false;
   handle_alarm = 0;
-  (void) signal (SIGALRM, SIGALRM_handler);
+  (void) signal(SIGALRM, SIGALRM_handler);
 }

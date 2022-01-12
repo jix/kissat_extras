@@ -3,11 +3,11 @@
 
 #include <signal.h>
 
-void kissat_init_signal_handler (void (*handler) (int));
-void kissat_reset_signal_handler (void);
+void kissat_init_signal_handler(void (*handler)(int));
+void kissat_reset_signal_handler(void);
 
-void kissat_init_alarm (void (*handler) (void));
-void kissat_reset_alarm (void);
+void kissat_init_alarm(void (*handler)(void));
+void kissat_reset_alarm(void);
 
 #define SIGNALS \
 SIGNAL(SIGABRT) \

@@ -121,7 +121,7 @@ typedef STACK (unsigned) unsigneds;
 
 struct kissat;
 
-void kissat_stack_enlarge (struct kissat *, chars *, size_t size_of_element);
-void kissat_shrink_stack (struct kissat *, chars *, size_t size_of_element);
+void kissat_stack_enlarge(struct kissat *, chars *, size_t size_of_element);
+void kissat_shrink_stack(struct kissat *, chars *, size_t size_of_element);
 
 #endif

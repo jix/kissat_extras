@@ -195,8 +195,7 @@ OPTION( xorsclslim, 5, 3, 31, "XOR extraction clause size limit") \
 
 typedef struct opt opt;
 
-struct opt
-{
+struct opt {
   const char *name;
 #ifndef NOPTIONS
   int value;
@@ -214,45 +213,43 @@ extern const opt *kissat_options_end;
 #define all_options(O) \
   opt const * O = kissat_options_begin; O != kissat_options_end; ++O
 
-const char *kissat_parse_option_name (const char *arg, const char *name);
-bool kissat_parse_option_value (const char *val_str, int *res_ptr);
+const char *kissat_parse_option_name(const char *arg, const char *name);
+bool kissat_parse_option_value(const char *val_str, int *res_ptr);
 
 #ifndef NOPTIONS
 
-void kissat_options_usage (void);
+void kissat_options_usage(void);
 
-const opt *kissat_options_has (const char *name);
+const opt *kissat_options_has(const char *name);
 
 #define kissat_options_max_name_buffer_size ((size_t) 32)
 
-bool kissat_options_parse_arg (const char *arg, char *name, int *val_str);
-void kissat_options_print_value (int value, char *buffer);
+bool kissat_options_parse_arg(const char *arg, char *name, int *val_str);
+void kissat_options_print_value(int value, char *buffer);
 
 typedef struct options options;
 
-struct options
-{
+struct options {
 #define OPTION(N,V,L,H,D) int N;
   OPTIONS
 #undef OPTION
 };
 
-void kissat_init_options (options *);
+void kissat_init_options(options *);
 
-int kissat_options_get (const options *, const char *name);
-int kissat_options_set_opt (options *, const opt *, int new_value);
-int kissat_options_set (options *, const char *name, int new_value);
+int kissat_options_get(const options *, const char *name);
+int kissat_options_set_opt(options *, const opt *, int new_value);
+int kissat_options_set(options *, const char *name, int new_value);
 
-void kissat_print_embedded_option_list (void);
-void kissat_print_option_range_list (void);
+void kissat_print_embedded_option_list(void);
+void kissat_print_option_range_list(void);
 
-static inline int *
-kissat_options_ref (const options * options, const opt * o)
-{
-  if (!o)
+static inline int *kissat_options_ref(const options *options, const opt *o) {
+  if (!o) {
     return 0;
-  assert (kissat_options_begin <= o);
-  assert (o < kissat_options_end);
+  }
+  assert(kissat_options_begin <= o);
+  assert(o < kissat_options_end);
   return (int *) options + (o - kissat_options_begin);
 }
 
@@ -260,8 +257,8 @@ kissat_options_ref (const options * options, const opt * o)
 
 #else
 
-void kissat_init_options (void);
-int kissat_options_get (const char *name);
+void kissat_init_options(void);
+int kissat_options_get(const char *name);
 
 #define GET_OPTION(N) kissat_options_ ## N
 

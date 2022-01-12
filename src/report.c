@@ -31,15 +31,15 @@ REP("irredundant", "2" PRIu64, IRREDUNDANT_CLAUSES) \
 REP("variables", "2u", solver->active) \
 REP("remaining", "1.0f%%" , REMAINING_VARIABLES) \
 
-void
-kissat_report (kissat * solver, bool verbose, char type)
-{
+void kissat_report(kissat *solver, bool verbose, char type) {
   statistics *statistics = &solver->statistics;
-  const int verbosity = kissat_verbosity (solver);
-  if (verbosity < 0)
+  const int verbosity = kissat_verbosity(solver);
+  if (verbosity < 0) {
     return;
-  if (verbose && verbosity < 2)
+  }
+  if (verbose && verbosity < 2) {
     return;
+  }
   char line[128], *p = line;
   unsigned pad[32], n = 1, pos = 0;
   pad[0] = 0;
@@ -55,16 +55,16 @@ kissat_report (kissat * solver, bool verbose, char type)
   REPORTS
 #undef REP
   // *INDENT-ON*
-  assert (p < line + sizeof line);
-  TERMINAL (stdout, 1);
-  if (!(solver->limits.reports++ % 20))
-    {
+  assert(p < line + sizeof line);
+  TERMINAL(stdout, 1);
+  if (!(solver->limits.reports++ % 20)) {
 #define ROWS 3
-      unsigned last[ROWS];
-      char rows[ROWS][128], *r[ROWS];
-      for (unsigned j = 0; j < ROWS; j++)
-	last[j] = 0, rows[j][0] = 0, r[j] = rows[j];
-      unsigned row = 0, i = 1;
+    unsigned last[ROWS];
+    char rows[ROWS][128], *r[ROWS];
+    for (unsigned j = 0; j < ROWS; j++) {
+      last[j] = 0, rows[j][0] = 0, r[j] = rows[j];
+    }
+    unsigned row = 0, i = 1;
 #define REP(NAME,FMT,VALUE) \
       do { \
 	if (last[row]) \
@@ -82,69 +82,69 @@ kissat_report (kissat * solver, bool verbose, char type)
 	  row = 0; \
 	i++; \
       } while (0);
-      REPORTS
+    REPORTS
 #undef REP
-	assert (i == n);
-      for (unsigned j = 0; j < ROWS; j++)
-	{
-	  assert (r[j] < rows[j] + sizeof rows[j]);
-	  *r[j] = 0;
-	}
-      if (solver->limits.reports > 1)
-	fputs ("c\n", stdout);
-      for (unsigned j = 0; j < ROWS; j++)
-	{
-	  fputs ("c  ", stdout);
-	  COLOR (YELLOW);
-	  fputs (rows[j], stdout);
-	  COLOR (NORMAL);
-	  fputc ('\n', stdout);
-	}
-      fputs ("c\n", stdout);
+    assert(i == n);
+    for (unsigned j = 0; j < ROWS; j++) {
+      assert(r[j] < rows[j] + sizeof rows[j]);
+      *r[j] = 0;
     }
-  fputc ('c', stdout);
-  fputc (' ', stdout);
-  switch (type)
-    {
-    case '1':
-    case '0':
-    case '?':
-    case 'i':
-      COLOR (BOLD);
-      break;
-    case 'e':
-      COLOR (BOLD GREEN);
-      break;
-    case '2':
-    case 's':
-      COLOR (GREEN);
-      break;
-    case '3':
-    case 'f':
-    case 't':
-    case 'u':
-    case 'v':
-    case 'w':
-      COLOR (BLUE);
-      break;
-    case 'b':
-    case 'd':
-      COLOR (BOLD BLUE);
-      break;
-    case '[':
-    case ']':
-      COLOR (MAGENTA);
-      break;
+    if (solver->limits.reports > 1) {
+      fputs("c\n", stdout);
     }
-  fputc (type, stdout);
-  COLOR (NORMAL);
-  if (solver->stable)
-    COLOR (MAGENTA);
-  fputs (line, stdout);
-  if (solver->stable)
-    COLOR (NORMAL);
-  fputc ('\n', stdout);
-  fflush (stdout);
+    for (unsigned j = 0; j < ROWS; j++) {
+      fputs("c  ", stdout);
+      COLOR(YELLOW);
+      fputs(rows[j], stdout);
+      COLOR(NORMAL);
+      fputc('\n', stdout);
+    }
+    fputs("c\n", stdout);
+  }
+  fputc('c', stdout);
+  fputc(' ', stdout);
+  switch (type) {
+  case '1':
+  case '0':
+  case '?':
+  case 'i':
+    COLOR(BOLD);
+    break;
+  case 'e':
+    COLOR(BOLD GREEN);
+    break;
+  case '2':
+  case 's':
+    COLOR(GREEN);
+    break;
+  case '3':
+  case 'f':
+  case 't':
+  case 'u':
+  case 'v':
+  case 'w':
+    COLOR(BLUE);
+    break;
+  case 'b':
+  case 'd':
+    COLOR(BOLD BLUE);
+    break;
+  case '[':
+  case ']':
+    COLOR(MAGENTA);
+    break;
+  }
+  fputc(type, stdout);
+  COLOR(NORMAL);
+  if (solver->stable) {
+    COLOR(MAGENTA);
+  }
+  fputs(line, stdout);
+  if (solver->stable) {
+    COLOR(NORMAL);
+  }
+  fputc('\n', stdout);
+  fflush(stdout);
 }
 
 #else

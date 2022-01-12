@@ -5,8 +5,7 @@ struct kissat;
 
 typedef struct mode mode;
 
-struct mode
-{
+struct mode {
   uint64_t ticks;
 #ifndef QUIET
   double entered;
@@ -18,7 +17,7 @@ struct mode
 #endif
 };
 
-bool kissat_switching_search_mode (struct kissat *);
-void kissat_switch_search_mode (struct kissat *);
+bool kissat_switching_search_mode(struct kissat *);
+void kissat_switch_search_mode(struct kissat *);
 
 #endif

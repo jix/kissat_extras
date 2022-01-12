@@ -39,31 +39,26 @@ do { \
 
 extern int kissat_is_terminal[3];
 
-int kissat_initialize_terminal (int fd);
-void kissat_force_colors (void);
-void kissat_force_no_colors (void);
+int kissat_initialize_terminal(int fd);
+void kissat_force_colors(void);
+void kissat_force_no_colors(void);
 
-static inline bool
-kissat_connected_to_terminal (int fd)
-{
-  assert (fd == 1 || fd == 2);
+static inline bool kissat_connected_to_terminal(int fd) {
+  assert(fd == 1 || fd == 2);
   int res = kissat_is_terminal[fd];
-  if (res < 0)
-    res = kissat_initialize_terminal (fd);
-  assert (res == 0 || res == 1);
+  if (res < 0) {
+    res = kissat_initialize_terminal(fd);
+  }
+  assert(res == 0 || res == 1);
   return res;
 }
 
-static inline const char *
-kissat_bold_green_color_code (int fd)
-{
-  return kissat_connected_to_terminal (fd) ? BOLD GREEN : "";
+static inline const char *kissat_bold_green_color_code(int fd) {
+  return kissat_connected_to_terminal(fd) ? BOLD GREEN : "";
 }
 
-static inline const char *
-kissat_normal_color_code (int fd)
-{
-  return kissat_connected_to_terminal (fd) ? NORMAL : "";
+static inline const char *kissat_normal_color_code(int fd) {
+  return kissat_connected_to_terminal(fd) ? NORMAL : "";
 }
 
 #endif

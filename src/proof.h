@@ -11,28 +11,28 @@ typedef struct proof proof;
 struct clause;
 struct file;
 
-void kissat_init_proof (struct kissat *, struct file *, bool binary);
-void kissat_release_proof (struct kissat *);
+void kissat_init_proof(struct kissat *, struct file *, bool binary);
+void kissat_release_proof(struct kissat *);
 
 #ifndef QUIET
-void kissat_print_proof_statistics (struct kissat *, bool verbose);
+void kissat_print_proof_statistics(struct kissat *, bool verbose);
 #endif
 
-void kissat_add_binary_to_proof (struct kissat *, unsigned, unsigned);
-void kissat_add_clause_to_proof (struct kissat *, const struct clause *c);
-void kissat_add_empty_to_proof (struct kissat *);
-void kissat_add_lits_to_proof (struct kissat *, size_t, const unsigned *);
-void kissat_add_unit_to_proof (struct kissat *, unsigned);
+void kissat_add_binary_to_proof(struct kissat *, unsigned, unsigned);
+void kissat_add_clause_to_proof(struct kissat *, const struct clause *c);
+void kissat_add_empty_to_proof(struct kissat *);
+void kissat_add_lits_to_proof(struct kissat *, size_t, const unsigned *);
+void kissat_add_unit_to_proof(struct kissat *, unsigned);
 
-void kissat_shrink_clause_in_proof (struct kissat *, const struct clause *,
-				    unsigned remove, unsigned keep);
+void kissat_shrink_clause_in_proof(struct kissat *, const struct clause *,
+      unsigned remove, unsigned keep);
 
-void kissat_delete_binary_from_proof (struct kissat *, unsigned, unsigned);
-void kissat_delete_clause_from_proof (struct kissat *,
-				      const struct clause *c);
-void kissat_delete_external_from_proof (struct kissat *, size_t, const int *);
-void kissat_delete_internal_from_proof (struct kissat *, size_t,
-					const unsigned *);
+void kissat_delete_binary_from_proof(struct kissat *, unsigned, unsigned);
+void kissat_delete_clause_from_proof(struct kissat *,
+      const struct clause *c);
+void kissat_delete_external_from_proof(struct kissat *, size_t, const int *);
+void kissat_delete_internal_from_proof(struct kissat *, size_t,
+      const unsigned *);
 
 #define ADD_BINARY_TO_PROOF(A,B) \
 do { \

@@ -43,7 +43,9 @@ coverage:
 	@gcov -o . -s ../src/*.[ch] 2>&1 | \
 	../scripts/filter-coverage-output.sh
 indent:
-	indent ../*/*.[ch]
+	printf '%s\n' ../*/*.[ch] | xargs -n 1 -P $(shell nproc) -- \
+		astyle -n -q --style=attach \
+			-j -xf -xh -xC80 -s2 -xU -xt3 -L -k3 -W3 -p -xg -U -H
 
 kissat: main.o $(APPOBJ) libkissat.a makefile
 	$(LD) -o $@ main.o $(APPOBJ) $(LIBS) -lm

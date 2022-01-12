@@ -261,96 +261,86 @@ int kissat_statistics_dummy_to_avoid_warning;
 
 #include "inlinevector.h"
 
-void
-kissat_check_statistics (kissat * solver)
-{
-  if (solver->inconsistent)
+void kissat_check_statistics(kissat *solver) {
+  if (solver->inconsistent) {
     return;
+  }
 
   size_t redundant = 0;
   size_t irredundant = 0;
   size_t hyper_ternaries = 0;
   size_t arena_garbage = 0;
 
-  for (all_clauses (c))
-    {
-      if (c->garbage)
-	{
-	  arena_garbage += kissat_actual_bytes_of_clause (c);
-	  continue;
-	}
-      if (c->hyper)
-	hyper_ternaries++;
-      if (c->redundant)
-	redundant++;
-      else
-	irredundant++;
+  for (all_clauses(c)) {
+    if (c->garbage) {
+      arena_garbage += kissat_actual_bytes_of_clause(c);
+      continue;
     }
+    if (c->hyper) {
+      hyper_ternaries++;
+    }
+    if (c->redundant) {
+      redundant++;
+    } else {
+      irredundant++;
+    }
+  }
 
   size_t redundant_binary_watches = 0;
   size_t irredundant_binary_watches = 0;
   size_t hyper_binaries = 0;
 
-  if (solver->watching)
-    {
-      for (all_literals (lit))
-	{
-	  watches *watches = &WATCHES (lit);
+  if (solver->watching) {
+    for (all_literals(lit)) {
+      watches *watches = &WATCHES(lit);
 
-	  for (all_binary_blocking_watches (watch, *watches))
-	    {
-	      if (watch.type.binary)
-		{
-		  if (watch.binary.redundant)
-		    {
-		      redundant_binary_watches++;
-		      if (watch.binary.hyper)
-			hyper_binaries++;
-		    }
-		  else
-		    irredundant_binary_watches++;
-		}
-	    }
-	}
+      for (all_binary_blocking_watches(watch, *watches)) {
+        if (watch.type.binary) {
+          if (watch.binary.redundant) {
+            redundant_binary_watches++;
+            if (watch.binary.hyper) {
+              hyper_binaries++;
+            }
+          } else {
+            irredundant_binary_watches++;
+          }
+        }
+      }
     }
-  else
-    {
-      for (all_literals (lit))
-	{
-	  watches *watches = &WATCHES (lit);
+  } else {
+    for (all_literals(lit)) {
+      watches *watches = &WATCHES(lit);
 
-	  for (all_binary_large_watches (watch, *watches))
-	    {
-	      if (watch.type.binary)
-		{
-		  if (watch.binary.redundant)
-		    {
-		      redundant_binary_watches++;
-		      if (watch.binary.hyper)
-			hyper_binaries++;
-		    }
-		  else
-		    irredundant_binary_watches++;
-		}
-	    }
-	}
+      for (all_binary_large_watches(watch, *watches)) {
+        if (watch.type.binary) {
+          if (watch.binary.redundant) {
+            redundant_binary_watches++;
+            if (watch.binary.hyper) {
+              hyper_binaries++;
+            }
+          } else {
+            irredundant_binary_watches++;
+          }
+        }
+      }
     }
+  }
 
-  assert (!(redundant_binary_watches & 1));
-  assert (!(irredundant_binary_watches & 1));
-  assert (!(hyper_binaries & 1));
+  assert(!(redundant_binary_watches & 1));
+  assert(!(irredundant_binary_watches & 1));
+  assert(!(hyper_binaries & 1));
 
   redundant += redundant_binary_watches / 2;
   irredundant += irredundant_binary_watches / 2;
   hyper_binaries /= 2;
 
   statistics *statistics = &solver->statistics;
-  assert (statistics->clauses_redundant == redundant);
-  assert (statistics->clauses_irredundant == irredundant);
+  assert(statistics->clauses_redundant == redundant);
+  assert(statistics->clauses_irredundant == irredundant);
 #ifdef METRICS
-  assert (statistics->hyper_binaries == hyper_binaries);
-  assert (statistics->hyper_ternaries == hyper_ternaries);
-  assert (statistics->arena_garbage == arena_garbage);
+  assert(statistics->hyper_binaries == hyper_binaries);
+  assert(statistics->hyper_ternaries == hyper_ternaries);
+  assert(statistics->arena_garbage == arena_garbage);
 #else
   (void) hyper_binaries;
   (void) hyper_ternaries;

@@ -26,38 +26,36 @@ kissat_signal_handler (int sig)
 
 static volatile bool ignore_alarm = false;
 
-static void
-kissat_alarm_handler (void)
-{
-  if (ignore_alarm)
+static void kissat_alarm_handler(void) {
+  if (ignore_alarm) {
     return;
-  assert (solver);
-  kissat_terminate (solver);
+  }
+  assert(solver);
+  kissat_terminate(solver);
 }
 
 #ifndef NDEBUG
-extern int dump (kissat *);
+extern int dump(kissat *);
 #endif
 
 #include "random.h"
 #include "error.h"
 #include <strings.h>
 
-int
-main (int argc, char **argv)
-{
+int main(int argc, char **argv) {
   int res;
-  solver = kissat_init ();
-  kissat_init_alarm (kissat_alarm_handler);
-  kissat_init_signal_handler (kissat_signal_handler);
-  res = kissat_application (solver, argc, argv);
-  kissat_reset_signal_handler ();
+  solver = kissat_init();
+  kissat_init_alarm(kissat_alarm_handler);
+  kissat_init_signal_handler(kissat_signal_handler);
+  res = kissat_application(solver, argc, argv);
+  kissat_reset_signal_handler();
   ignore_alarm = true;
-  kissat_reset_alarm ();
-  kissat_release (solver);
+  kissat_reset_alarm();
+  kissat_release(solver);
 #ifndef NDEBUG
-  if (!res)
-    return dump (0);
+  if (!res) {
+    return dump(0);
+  }
 #endif
   return res;
 }

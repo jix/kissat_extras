@@ -3,6 +3,6 @@
 
 struct kissat;
 
-void kissat_ternary (struct kissat *);
+void kissat_ternary(struct kissat *);
 
 #endif

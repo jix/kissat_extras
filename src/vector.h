@@ -21,14 +21,12 @@
 typedef struct vector vector;
 typedef struct vectors vectors;
 
-struct vectors
-{
+struct vectors {
   unsigneds stack;
   size_t usable;
 };
 
-struct vector
-{
+struct vector {
 #ifdef COMPACT
   unsigned offset;
   unsigned size;
@@ -41,14 +39,14 @@ struct vector
 struct kissat;
 
 #ifdef CHECK_VECTORS
-void kissat_check_vectors (struct kissat *);
+void kissat_check_vectors(struct kissat *);
 #else
 #define kissat_check_vectors(...) do { } while (0)
 #endif
 
-unsigned *kissat_enlarge_vector (struct kissat *, vector *);
-void kissat_defrag_vectors (struct kissat *, size_t, vector *);
-void kissat_remove_from_vector (struct kissat *, vector *, unsigned);
-void kissat_resize_vector (struct kissat *, vector *, size_t);
+unsigned *kissat_enlarge_vector(struct kissat *, vector *);
+void kissat_defrag_vectors(struct kissat *, size_t, vector *);
+void kissat_remove_from_vector(struct kissat *, vector *, unsigned);
+void kissat_resize_vector(struct kissat *, vector *, size_t);
 
 #endif

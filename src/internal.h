@@ -39,32 +39,29 @@
 
 typedef struct datarank datarank;
 
-struct datarank
-{
+struct datarank {
   unsigned data;
   unsigned rank;
 };
 
 typedef struct import import;
 
-struct import
-{
-  unsigned lit:30;
-  bool imported:1;
-  bool eliminated:1;
+struct import {
+  unsigned lit: 30;
+  bool imported: 1;
+  bool eliminated: 1;
 };
 
 typedef struct termination termination;
 
-struct termination
-{
+struct termination {
 #ifdef COVERAGE
   volatile uint64_t flagged;
 #else
   volatile bool flagged;
 #endif
   volatile void *state;
-  int (*volatile terminate) (void *);
+  int (*volatile terminate)(void *);
 };
 
 // *INDENT-OFF*
@@ -79,8 +76,7 @@ typedef STACK (watch *) patches;
 
 struct kitten;
 
-struct kissat
-{
+struct kissat {
 #if !defined(NDEBUG) || defined(METRICS)
   bool backbone_computing;
 #endif
@@ -253,10 +249,8 @@ struct kissat
 #define VARS (solver->vars)
 #define LITS (2*solver->vars)
 
-static inline unsigned
-kissat_assigned (kissat * solver)
-{
-  assert (VARS >= solver->unassigned);
+static inline unsigned kissat_assigned(kissat *solver) {
+  assert(VARS >= solver->unassigned);
   return VARS - solver->unassigned;
 }
 

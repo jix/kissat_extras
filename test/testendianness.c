@@ -4,20 +4,17 @@
 
 #include "test.h"
 
-struct first
-{
-  bool bit:1;
-  unsigned rest:31;
+struct first {
+  bool bit: 1;
+  unsigned rest: 31;
 };
 
-struct last
-{
-  unsigned rest:31;
-  bool bit:1;
+struct last {
+  unsigned rest: 31;
+  bool bit: 1;
 };
 
-union type
-{
+union type {
   struct first first;
   struct last last;
   unsigned raw;
@@ -29,12 +26,10 @@ do { \
   printf ("%s == %08x\n", #EXPR, value); \
 } while (0)
 
-static void
-test_endianness (void)
-{
-  assert (sizeof (struct first) == 4);
-  assert (sizeof (struct last) == 4);
-  assert (sizeof (union type) == 4);
+static void test_endianness(void) {
+  assert(sizeof(struct first) == 4);
+  assert(sizeof(struct last) == 4);
+  assert(sizeof(union type) == 4);
   // *INDENT-OFF*
   PRINT (((union type) { .raw = 1u      }).raw);
   PRINT (((union type) { .raw = (1u<<31)}).raw);
@@ -65,8 +60,6 @@ test_endianness (void)
   // *INDENT-ON*
 }
 
-void
-tissat_schedule_endianness (void)
-{
-  SCHEDULE_FUNCTION (test_endianness);
+void tissat_schedule_endianness(void) {
+  SCHEDULE_FUNCTION(test_endianness);
 }

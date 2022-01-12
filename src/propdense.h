@@ -5,6 +5,6 @@ struct kissat;
 
 #include <limits.h>
 
-bool kissat_dense_propagate (struct kissat *);
+bool kissat_dense_propagate(struct kissat *);
 
 #endif

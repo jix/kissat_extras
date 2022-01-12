@@ -5,7 +5,7 @@
 
 struct kissat;
 
-void kissat_bump (struct kissat *);
+void kissat_bump(struct kissat *);
 
 #define MAX_SCORE 1e150
 

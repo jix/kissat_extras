@@ -2,17 +2,18 @@
 
 #include <string.h>
 
-bool
-kissat_has_suffix (const char *str, const char *suffix)
-{
+bool kissat_has_suffix(const char *str, const char *suffix) {
   const char *p = str;
-  while (*p)
+  while (*p) {
     p++;
+  }
   const char *q = suffix;
-  while (*q)
+  while (*q) {
     q++;
+  }
   while (p > str && q > suffix)
-    if (*--p != *--q)
+    if (*--p != *--q) {
       return false;
+    }
   return q == suffix;
 }
