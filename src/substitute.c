@@ -538,7 +538,7 @@ static void substitute_clauses(kissat *solver, unsigned *repr) {
           c->searched = 2;
           if (!c->shrunken) {
             c->shrunken = true;
-            c->lits[old_size - 1] = INVALID_LIT;
+            old_lits[old_size - 1] = INVALID_LIT;
           }
         }
         LOGCLS(c, "unsorted substituted");
