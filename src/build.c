@@ -34,8 +34,9 @@ do { \
 
 #define NL() \
 do { \
-  fputs ("\n", stdout); \
   COLOR (NORMAL); \
+  fputs ("\n", stdout); \
+  fflush(stdout); \
 } while (0)
 
 void kissat_build(const char *prefix) {
