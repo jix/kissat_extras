@@ -1,5 +1,6 @@
 #include "colors.h"
 #include "inline.h"
+#include "import.h"
 
 static void undo_eliminated_assignment(kissat *solver) {
   size_t size_etrail = SIZE_STACK(solver->etrail);
@@ -91,9 +92,10 @@ void kissat_extend(kissat *solver) {
       }
 
       assert(elit != INT_MIN);
-      const unsigned eidx = ABS(elit);
-      assert(eidx < SIZE_STACK(solver->import));
-      const import *const import = imports + eidx;
+
+      int repr_elit = kissat_external_representative(solver, elit);
+      const unsigned repr_eidx = ABS(repr_elit);
+      const import *const import = imports + repr_eidx;
       assert(import->imported);
 
       if (import->eliminated) {
@@ -101,23 +103,25 @@ void kissat_extend(kissat *solver) {
         assert(tmp < SIZE_STACK(solver->eliminated));
         value value = evalues[tmp];
 
-        if (elit < 0) {
+        if (repr_elit < 0) {
           value = -value;
         }
 
         if (value > 0) {
-          LOG2("previously assigned eliminated literal %d "
-                "satisfies clause", elit);
+          LOG2("previously assigned eliminated literal %d (= %d) "
+                "satisfies clause", elit, repr_elit);
           satisfied = true;
         } else if (!value && (!eliminated || pos < tmp)) {
 #ifdef LOGGING
           if (eliminated) {
-            LOG2("earlier unassigned eliminated literal %d", elit);
+            LOG2("earlier unassigned eliminated literal %d (= %d)",
+                  elit, repr_elit);
           } else {
-            LOG2("found unassigned eliminated literal %d", elit);
+            LOG2("found unassigned eliminated literal %d (= %d)",
+                  elit, repr_elit);
           }
 #endif
-          eliminated = elit;
+          eliminated = repr_elit;
           pos = tmp;
         }
       } else {
@@ -125,7 +129,7 @@ void kissat_extend(kissat *solver) {
         value value = ivalues[ilit];
         assert(value);
 
-        if (elit < 0) {
+        if (repr_elit < 0) {
           value = -value;
         }
 
@@ -158,6 +162,7 @@ void kissat_extend(kissat *solver) {
     const unsigned blocking_idx = ABS(blocking);
     assert(blocking_idx < SIZE_STACK(solver->import));
     assert(imports[blocking_idx].eliminated);
+    assert(imports[blocking_idx].imported);
     const unsigned blocking_pos = imports[blocking_idx].lit;
     assert(blocking_pos < SIZE_STACK(solver->eliminated));
     const value blocking_value = evalues[blocking_pos];

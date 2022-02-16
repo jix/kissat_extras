@@ -99,6 +99,39 @@ void kissat_mark_eliminated_variable(kissat *solver, unsigned idx) {
   solver->unassigned--;
 }
 
+void kissat_mark_substituted_variable(kissat *solver,
+      unsigned idx, unsigned replacement_lit) {
+  const unsigned lit = LIT(idx);
+  assert(IDX(replacement_lit) != idx);
+  assert(!VALUE(lit));
+  LOG("marking internal %s as substituted by %s",
+        LOGVAR(idx), LOGLIT(replacement_lit));
+  flags *f = FLAGS(idx);
+  assert(f->active);
+  assert(!f->eliminated);
+  assert(!f->fixed);
+  f->eliminated = true;
+  deactivate_variable(solver, f, idx);
+  int elit = kissat_export_literal(solver, lit);
+  assert(elit);
+  assert(elit != INT_MIN);
+  unsigned eidx = ABS(elit);
+  import *import = &PEEK_STACK(solver->import, eidx);
+  assert(!import->eliminated);
+  assert(import->imported);
+  assert(STRIP(import->lit) == STRIP(lit));
+  int replacement_elit = kissat_export_literal(solver, replacement_lit);
+  assert(replacement_elit);
+  assert(replacement_elit != INT_MIN);
+  KISSAT_SET_IMPORT_ELIT(import, replacement_elit);
+  import->eliminated = true;
+  import->imported = false;
+  LOG("marked external variable %u as substituted by %d",
+        eidx, replacement_elit);
+  assert(solver->unassigned > 0);
+  solver->unassigned--;
+}
+
 void kissat_mark_removed_literals(kissat *solver, unsigned size,
       unsigned *lits) {
   for (unsigned i = 0; i < size; i++) {

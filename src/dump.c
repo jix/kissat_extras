@@ -155,8 +155,10 @@ void dump_map(kissat *solver) {
     if (elit) {
       const unsigned eidx = ABS(elit);
       const import *const import = &PEEK_STACK(solver->import, eidx);
-      if (import->eliminated) {
+      if (import->eliminated && import->imported) {
         printf(" -> eliminated[%u]", import->lit);
+      } else if (import->eliminated) {
+        printf(" -> substituted[%d]", KISSAT_GET_IMPORT_ELIT(import));
       } else {
         unsigned mlit = import->lit;
         if (elit < 0) {
@@ -183,7 +185,11 @@ static void dump_import(kissat *solver) {
     import *import = &PEEK_STACK(solver->import, idx);
     printf("import[%u] = ", idx);
     if (!import->imported) {
-      printf("undefined\n");
+      if (import->eliminated) {
+        printf("substituted[%d]\n", KISSAT_GET_IMPORT_ELIT(import));
+      } else {
+        printf("undefined\n");
+      }
     } else if (import->eliminated) {
       unsigned pos = import->lit;
       printf("eliminated[%u]", pos);

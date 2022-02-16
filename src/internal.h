@@ -52,6 +52,12 @@ struct import {
   bool eliminated: 1;
 };
 
+#define KISSAT_GET_IMPORT_ELIT(IMPORT) \
+  (((int)((IMPORT)->lit << 2)) >> 2)
+#define KISSAT_SET_IMPORT_ELIT(IMPORT, ELIT) \
+  (IMPORT)->lit = (assert(ABS(ELIT) < (1 << 29)), \
+    (((unsigned)(ELIT)) & ((1u << 30) - 1)))
+
 typedef struct termination termination;
 
 struct termination {

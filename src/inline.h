@@ -205,6 +205,9 @@ static inline unsigned kissat_map_literal(kissat *solver, unsigned ilit,
   if (!map) {
     return ilit;
   }
+  if (ELIMINATED(IDX(ilit))) {
+    return INVALID_LIT;
+  }
   int elit = kissat_export_literal(solver, ilit);
   if (!elit) {
     return INVALID_LIT;

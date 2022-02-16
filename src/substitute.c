@@ -256,8 +256,6 @@ static bool *add_representative_equivalences(kissat *solver, unsigned *repr) {
 static void remove_representative_equivalences(kissat *solver,
       unsigned *repr, bool *eliminate) {
   if (!solver->inconsistent) {
-    value *values = solver->values;
-    const bool incremental = GET_OPTION(incremental);
     for (all_variables(idx)) {
       if (!eliminate[idx]) {
         continue;
@@ -279,19 +277,7 @@ static void remove_representative_equivalences(kissat *solver,
       DELETE_BINARY_FROM_PROOF(lit, not_other);
 
       INC(substituted);
-      kissat_mark_eliminated_variable(solver, idx);
-      const value other_value = values[other];
-      if (incremental || other_value) {
-        if (other_value <= 0) {
-          kissat_weaken_binary(solver, not_lit, other);
-        }
-        if (other_value >= 0) {
-          kissat_weaken_binary(solver, lit, not_other);
-        }
-      } else {
-        kissat_weaken_binary(solver, not_lit, other);
-        kissat_weaken_unit(solver, lit);
-      }
+      kissat_mark_substituted_variable(solver, idx, other);
     }
   }
   if (eliminate) {

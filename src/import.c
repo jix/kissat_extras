@@ -1,3 +1,5 @@
+#include "import.h"
+#include "inline.h"
 #include "internal.h"
 #include "logging.h"
 #include "resize.h"
@@ -17,6 +19,7 @@ static void adjust_exports_for_external_literal(kissat *solver, unsigned eidx) {
   unsigned iidx = solver->vars;
   kissat_enlarge_variables(solver, iidx + 1);
   unsigned ilit = 2 * iidx;
+  assert(!import->imported);
   import->imported = true;
   assert(!import->eliminated);
   import->lit = ilit;
@@ -31,17 +34,21 @@ static void adjust_exports_for_external_literal(kissat *solver, unsigned eidx) {
 static inline unsigned import_literal(kissat *solver, int elit) {
   const unsigned eidx = ABS(elit);
   adjust_imports_for_external_literal(solver, eidx);
-  import *import = &PEEK_STACK(solver->import, eidx);
+
+  const int repr_elit = kissat_external_representative(solver, elit);
+  const unsigned repr_eidx = ABS(repr_elit);
+
+  import *import = &PEEK_STACK(solver->import, repr_eidx);
   if (import->eliminated) {
     return INVALID_LIT;
   }
   unsigned ilit;
   if (!import->imported) {
-    adjust_exports_for_external_literal(solver, eidx);
+    adjust_exports_for_external_literal(solver, repr_eidx);
   }
   assert(import->imported);
   ilit = import->lit;
-  if (elit < 0) {
+  if (repr_elit < 0) {
     ilit = NOT(ilit);
   }
   assert(VALID_INTERNAL_LITERAL(ilit));
@@ -74,4 +81,45 @@ unsigned kissat_import_literal(kissat *solver, int elit) {
   }
 
   return ilit;
+}
+
+int kissat_external_representative(kissat *solver, int elit) {
+  int initial_elit = elit;
+  unsigned steps = 0;
+  int target_elit = 0;
+  do {
+    const unsigned eidx = ABS(elit);
+    const import *const current_import = &PEEK_STACK(solver->import, eidx);
+
+    if (current_import->imported || !current_import->eliminated) {
+      target_elit = elit;
+      break;
+    }
+
+    steps++;
+
+    bool flip = elit < 0;
+    elit = KISSAT_GET_IMPORT_ELIT(current_import);
+    if (flip) {
+      elit = -elit;
+    }
+  } while (true);
+
+  for (unsigned i = 1; i < steps; i++) {
+    elit = initial_elit;
+    unsigned eidx = ABS(elit);
+    import *current_import = &PEEK_STACK(solver->import, eidx);
+
+    assert(!(current_import->imported || !current_import->eliminated));
+
+    bool flip = elit < 0;
+    elit = KISSAT_GET_IMPORT_ELIT(current_import);
+    if (flip) {
+      elit = -elit;
+    }
+    int updated_elit = flip ? -target_elit : target_elit;
+    KISSAT_SET_IMPORT_ELIT(current_import, updated_elit);
+  }
+
+  return target_elit;
 }

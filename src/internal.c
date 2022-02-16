@@ -497,7 +497,10 @@ int kissat_value(kissat *solver, int elit) {
   if (eidx >= SIZE_STACK(solver->import)) {
     return 0;
   }
-  const import *const import = &PEEK_STACK(solver->import, eidx);
+  const int repr_elit = kissat_external_representative(solver, elit);
+  const unsigned repr_eidx = ABS(repr_elit);
+
+  const import *const import = &PEEK_STACK(solver->import, repr_eidx);
   if (!import->imported) {
     return 0;
   }
@@ -515,7 +518,7 @@ int kissat_value(kissat *solver, int elit) {
   if (!tmp) {
     return 0;
   }
-  if (elit < 0) {
+  if (repr_elit < 0) {
     tmp = -tmp;
   }
   return tmp < 0 ? -elit : elit;
