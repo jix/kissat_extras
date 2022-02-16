@@ -1,6 +1,7 @@
 #ifndef _statistics_h_INCLUDED
 #define _statistics_h_INCLUDED
 
+#include <assert.h>
 #include <stdint.h>
 #include <stdbool.h>
 

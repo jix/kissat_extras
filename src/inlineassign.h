@@ -1,6 +1,11 @@
 #ifndef _inlineassign_h_INLCUDED
 #define _inlineassign_h_INLCUDED
 
+#include "internal.h"
+#include "inlinevector.h"
+
+typedef struct kissat kissat;
+
 #ifdef FAST_ASSIGN
 #define kissat_assign kissat_fast_assign
 #endif

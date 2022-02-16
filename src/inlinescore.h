@@ -2,6 +2,7 @@
 #define _inlinescore_h_INCLUDED
 
 #include "inlineheap.h"
+#include "inlinevector.h"
 
 static inline void kissat_update_variable_score(kissat *solver, heap *schedule,
       unsigned idx) {

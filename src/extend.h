@@ -1,6 +1,8 @@
 #ifndef _extend_h_INCLUDED
 #define _extend_h_INCLUDED
 
+#include <limits.h>
+
 #include "stack.h"
 #include "utilities.h"
 

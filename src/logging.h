@@ -5,6 +5,7 @@
 
 #include "attribute.h"
 #include "extend.h"
+#include "internal.h"
 #include "reference.h"
 #include "watch.h"
 

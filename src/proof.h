@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+typedef struct kissat kissat;
 typedef struct proof proof;
 
 struct clause;

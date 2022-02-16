@@ -1,6 +1,8 @@
 #ifndef _reap_h_INCLUDED
 #define _reap_h_INCLUDED
 
+#include <stdbool.h>
+
 #include "stack.h"
 
 typedef struct reap reap;

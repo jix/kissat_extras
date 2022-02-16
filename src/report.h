@@ -1,6 +1,8 @@
 #ifndef _report_h_INCLUDED
 #define _report_h_INCLUDED
 
+#include <stdbool.h>
+
 #ifdef QUIET
 
 #define REPORT(...) do { } while (0)

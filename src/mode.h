@@ -1,6 +1,9 @@
 #ifndef _mode_h_INCLUDED
 #define _mode_h_INCLUDED
 
+#include <stdbool.h>
+#include <stdint.h>
+
 struct kissat;
 
 typedef struct mode mode;

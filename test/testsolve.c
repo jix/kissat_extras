@@ -24,7 +24,7 @@ static const char *simps[] = {
 #ifndef NOPTIONS
   "--eliminateinit=0 ",
   "--probeinit=0 ",
-  "--reduceinit=10 " "--rephaseinit=10 --rephaseint=10 ",
+  "--reduceinit=10 --rephaseinit=10 --rephaseint=10 ",
   "--incremental ",
   "--walkinitially ",
 #endif

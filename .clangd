@@ -1,0 +1,11 @@
+# No unused function warnings for header files
+If:
+  PathMatch: .*\.h
+CompileFlags:
+  Add: [-Wno-unused-function]
+---
+# Not a stand-alone header file
+If:
+  PathMatch: .*proplit\.h
+Diagnostics:
+  Suppress: '*'

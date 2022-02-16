@@ -1,6 +1,8 @@
 #ifndef _minimize_h_INCLUDED
 #define _minimize_h_INCLUDED
 
+#include <stdbool.h>
+
 struct kissat;
 
 void kissat_reset_poisoned(struct kissat *);

@@ -195,6 +195,7 @@ static inline bool find_binary(kissat *solver, bool irredundant,
   const size_t size_watches = SIZE_WATCHES(*watches);
   uint64_t steps = kissat_cache_lines(size_watches, sizeof(watch));
   steps += additional;
+  (void) steps; // silence warning for now TODO figure out what to do here
   for (all_binary_large_watches(watch, *watches)) {
     if (!watch.type.binary) {
       continue;

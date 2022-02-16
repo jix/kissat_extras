@@ -82,7 +82,7 @@ Options used to instrument the code for coverage and performance profiling.
 
 For coverage testing it might be useful to enforce different compiler
 optimization levels, i.e., lower than the default '-O3' (without '-g').
-  
+
   -O[0|1|2|3]      set the optimization level of the compiler explicitly
 
 We have compile time options which save memory and speed up the solver by
@@ -92,10 +92,10 @@ configuration, disable messages, profiling and certain statistics.
   --compact         limit watcher stacks and clause arena size
   --no-options      fix all solver options to their default value
   --quiet           disable messages, built-in profiling and metrics
-                   
+
   --competition     same as '--no-options --quiet' (competition configuration)
   --extreme         same as '--compact --no-options --quiet'
-                   
+
   --no-proofs       do not include code for proof generation
   --ultimate        all configurations above ('--extreme --no-proofs')
 
@@ -111,10 +111,10 @@ Redundant metrics and statistics gathering code can be enabled and disabled
 separately.  Only essential counters are updated and printed without these.
 Metrics are considered to be statistics, thus  '--metrics' also implies
 '--statistics' and vice versa '--no-statistics' implies '--no-metrics.
-   
+
    --metrics        include metrics code (default with '-g', '-l')
    --no-metrics     no metrics code (default with '--quiet' etc.)
-                   
+
    --statistics     include statistics code (default without '--extreme')
    --no-statistics  no statistics code (default with '--extreme')
 
@@ -124,7 +124,7 @@ disabled for optimized compilation (without '-c', '-g', nor '-l'),
 except that '--embedded' is also assumed with '--coverage' unless options
 are disabled (with '--no-options', '--extreme' or '--no-options').
 
-   --embedded | -e  allow parsing option value pairs in DIMACS file 
+   --embedded | -e  allow parsing option value pairs in DIMACS file
    --no-embedded    disable parsing option value pairs in DIMACS file
 
 The default goal of the generated 'makefile' only builds the library
@@ -161,7 +161,7 @@ to the makefile and thus the compiler to avoid editing the makefile.  However,
 for '-m32' the configure script checks that it can actually really do 32-bit
 builds. Furthermore, in case of '-fsanitize=address' the macro '-DASAN' is
 defined, such that some tests incompatible with ASAN can be omitted.
-       
+
   -m32              add '-m32' option to compile for 32-bit
   -f...             add '-f...' options,('-fsanitize=address', '-fpic' ...)
   -static           add '-static' linking flag
@@ -278,6 +278,7 @@ do
     --check-walk) check_walk=yes;;
 
     CC=*) CC="`echo \"$1\"|sed -e s,^CC=,,`";;
+    WRAPCC=*) WRAPCC="`echo \"$1\"|sed -e s,^WRAPCC=,,`";;
 
     *) die "invalid option '$1' (try '-h')";;
   esac
@@ -325,6 +326,8 @@ clean:
 	rm -rf "$BUILD"
 coverage:
 	\$(MAKE) -C "$BUILD" coverage
+headers:
+	\$(MAKE) -C "$BUILD" headers
 indent:
 	\$(MAKE) -C "$BUILD" indent
 test:
@@ -426,10 +429,10 @@ then
   fi
 elif [ $metrics = yes ]
 then
-  [ $logging = yes ] && die "can not combine '--metrics' and '-l'" 
+  [ $logging = yes ] && die "can not combine '--metrics' and '-l'"
 else
   [ $debug = no -a $logging = no ] && \
-    die "can not use '--no-metrics' without '-g' nor '-l'" 
+    die "can not use '--no-metrics' without '-g' nor '-l'"
 fi
 
 if [ $statistics = unknown ]
@@ -442,7 +445,7 @@ then
   fi
 elif [ $statistics = yes -a $logging = yes ]
 then
-  die "can not combine '--metrics' and '-l'" 
+  die "can not combine '--metrics' and '-l'"
 fi
 
 if [ $check_all = yes ]
@@ -472,9 +475,9 @@ then
   fi
 elif [ $embedded = yes ]
 then
-  [ $check = yes ] && die "can not combine '--embedded' and '-c'" 
-  [ $debug = yes ] && die "can not combine '--embedded' and '-g'" 
-  [ $logging = yes ] && die "can not combine '--embedded' and '-l'" 
+  [ $check = yes ] && die "can not combine '--embedded' and '-c'"
+  [ $debug = yes ] && die "can not combine '--embedded' and '-g'"
+  [ $logging = yes ] && die "can not combine '--embedded' and '-l'"
 elif [ $check = no -a $debug = no -a $logging = no ]
 then
   die "can not use '--no-embedded' without '-c', '-g', nor '-l'"
@@ -677,11 +680,32 @@ else
   KITTEN=""
 fi
 
+if [ ! $WRAPCC = "" ]
+then
+  WRAPCC="$WRAPCC "
+fi
+
 rm -f makefile
 sed \
-  -e "s#@CC@#$CC$CFLAGS#" \
+  -e "s#@CC@#$WRAPCC$CC$CFLAGS#" \
   -e "s#@KITTEN@#$KITTEN#" \
   -e "s#@LD@#$LD#" \
   -e "s#@AR@#$AR#" \
   -e "s#@GOALS@#$goals#" \
   ../makefile.in > makefile
+
+if which jq &> /dev/null
+then
+  msg "generating compile_commands.json"
+  wrap_cc_len="x$WRAPCC"
+  make --always-make --dry-run all | \
+    grep -F "$WRAPCC$CC$CFLAGS" | \
+    cut -b${#wrap_cc_len}- | \
+    build_dir=$PWD jq -R '{
+      "directory": env.build_dir,
+      "command": (. + env.extra_flags),
+      "file": (. | split(" ")[-1])
+    }' | jq -s > compile_commands.json
+else
+  msg "install 'jq' to enable compile_commands.json generation"
+fi

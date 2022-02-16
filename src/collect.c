@@ -343,7 +343,9 @@ static reference sparse_sweep_garbage_clauses(kissat *solver, bool compact,
     last_irredundant = 0;
   }
 
+#ifdef LOGGING
   size_t redundant_bytes = 0;
+#endif
 
   for (clause * next; src != end; src = next) {
     if (src->garbage) {
@@ -514,7 +516,9 @@ static reference sparse_sweep_garbage_clauses(kissat *solver, bool compact,
           first_reducible = dst;
         }
 
+#ifdef LOGGING
         redundant_bytes += (char *) next_dst - (char *) dst;
+#endif
         if (!first_redundant) {
           first_redundant = dst;
         }

@@ -7,6 +7,9 @@ VPATH=../src:../test
 %.o: %.c ../[st]*/*.h makefile
 	$(CC) -c $<
 
+%.h.check: %.h ../[st]*/*.h makefile
+	$(CC) -c $< -o $@
+
 APPSRC=application.c handle.c parse.c witness.c
 
 LIBSRT=$(sort $(wildcard ../src/*.c))
@@ -16,6 +19,11 @@ LIBSRC=$(filter-out main.c $(APPSRC),$(LIBSUB))
 TSTSRT=$(sort $(wildcard ../test/*.c))
 TSTSUB=$(subst ../test/,,$(TSTSRT))
 TSTSRC=$(filter-out test.c,$(TSTSUB))
+
+HEADSRT=$(sort $(wildcard ../src/*.h))
+HEADSUB=$(subst ../src/,,$(HEADSRT))
+HEADSRC=$(filter-out proplit.h,$(HEADSUB))
+HEADCHK=$(HEADSRC:.h=.h.check)
 
 APPOBJ=$(APPSRC:.c=.o)
 LIBOBJ=$(LIBSRC:.c=.o)
@@ -29,6 +37,8 @@ all: @GOALS@
 
 test: all tissat
 	./tissat
+
+headers: $(HEADCHK)
 
 REMOVE=*.gcda *.gcno *.gcov gmon.out *~ *.proof
 
@@ -82,4 +92,4 @@ libkissat.a: $(LIBOBJ) makefile
 libkissat.so: $(LIBOBJ) makefile
 	$(LD) -shared -o $@ $(LIBOBJ)
 
-.PHONY: all clean coverage indent test build.h
+.PHONY: all clean coverage headers indent test build.h
