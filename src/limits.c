@@ -271,8 +271,6 @@ static void common_limits(kissat *solver) {
 }
 
 void kissat_init_limits(kissat *solver) {
-  assert(solver->statistics.searches == 1);
-
   init_enabled(solver);
 
   limits *limits = &solver->limits;

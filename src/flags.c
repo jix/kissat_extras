@@ -1,6 +1,7 @@
 #include "inline.h"
 #include "inlineheap.h"
 #include "inlinequeue.h"
+#include "protect.h"
 
 static inline void activate_literal(kissat *solver, unsigned lit) {
   const unsigned idx = IDX(lit);
@@ -13,6 +14,7 @@ static inline void activate_literal(kissat *solver, unsigned lit) {
   f->active = true;
   assert(!f->fixed);
   assert(!f->eliminated);
+  assert(!PROTECT(idx));
   solver->active++;
   INC(variables_activated);
   kissat_enqueue(solver, idx);
@@ -35,6 +37,7 @@ static inline void deactivate_variable(kissat *solver, flags *f, unsigned idx) {
   LOG("deactivating %s", LOGVAR(idx));
   assert(f->active);
   assert(f->eliminated || f->fixed);
+  assert(!PROTECT(idx));
   f->active = false;
   assert(solver->active > 0);
   solver->active--;
@@ -63,6 +66,7 @@ void kissat_mark_fixed_literal(kissat *solver, unsigned lit) {
   assert(!f->eliminated);
   assert(!f->fixed);
   f->fixed = true;
+  PROTECT(idx) = 0;
   deactivate_variable(solver, f, idx);
   INC(units);
   int elit = kissat_export_literal(solver, lit);
@@ -77,6 +81,7 @@ void kissat_mark_eliminated_variable(kissat *solver, unsigned idx) {
   LOG("marking internal %s as eliminated", LOGVAR(idx));
   flags *f = FLAGS(idx);
   assert(f->active);
+  assert(!PROTECT(idx));
   assert(!f->eliminated);
   assert(!f->fixed);
   f->eliminated = true;
@@ -111,6 +116,7 @@ void kissat_mark_substituted_variable(kissat *solver,
   assert(!f->eliminated);
   assert(!f->fixed);
   f->eliminated = true;
+  kissat_move_protection(solver, idx, IDX(replacement_lit));
   deactivate_variable(solver, f, idx);
   int elit = kissat_export_literal(solver, lit);
   assert(elit);

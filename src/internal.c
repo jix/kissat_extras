@@ -1,6 +1,7 @@
 #include "allocate.h"
 #include "backtrack.h"
 #include "error.h"
+#include "protect.h"
 #include "search.h"
 #include "import.h"
 #include "inline.h"
@@ -88,6 +89,7 @@ void kissat_release(kissat *solver) {
 
   DEALLOC_VARIABLE_INDEXED(assigned);
   DEALLOC_VARIABLE_INDEXED(flags);
+  DEALLOC_VARIABLE_INDEXED(protect);
   DEALLOC_VARIABLE_INDEXED(links);
 
   DEALLOC_LITERAL_INDEXED(marks);
@@ -256,7 +258,6 @@ void kissat_print_statistics(kissat *solver) {
 
 void kissat_add(kissat *solver, int elit) {
   kissat_require_initialized(solver);
-  kissat_require(!GET(searches), "incremental solving not supported");
 #if !defined(NDEBUG) || !defined(NPROOFS) || defined(LOGGING)
   const int checking = kissat_checking(solver);
   const bool logging = kissat_logging(solver);
@@ -270,6 +271,11 @@ void kissat_add(kissat *solver, int elit) {
     }
 #endif
     unsigned ilit = kissat_import_literal(solver, elit);
+    unsigned iidx = IDX(ilit);
+
+    kissat_require(
+          !GET(searches) || PROTECT(iidx) || FLAGS(iidx)->fixed,
+          "incremental clauses on unprotected literals not supported");
 
     const mark mark = MARK(ilit);
     if (!mark) {
@@ -351,6 +357,13 @@ void kissat_add(kissat *solver, int elit) {
           LOGUNARY(unit, "found original");
         }
 
+        if (VALUE(unit)) {
+          assert(LEVEL(unit));
+          const unsigned l = LEVEL(unit);
+
+          kissat_backtrack_without_updating_phases(solver, l - 1);
+        }
+
         kissat_original_unit(solver, unit);
 
         COVER(solver->level);
@@ -384,6 +397,7 @@ void kissat_add(kissat *solver, int elit) {
           assert(v < 0);
           assert(k > l);
           assert(l > 0);
+          kissat_backtrack_without_updating_phases(solver, k - 1);
           assign = true;
         } else if (u > 0 && v < 0) {
           LOG("first watch satisfied at level @%u "
@@ -473,7 +487,6 @@ int kissat_solve(kissat *solver) {
   kissat_require_initialized(solver);
   kissat_require(EMPTY_STACK(solver->clause),
         "incomplete clause (terminating zero not added)");
-  kissat_require(!GET(searches), "incremental solving not supported");
   return kissat_search(solver);
 }
 
@@ -522,4 +535,35 @@ int kissat_value(kissat *solver, int elit) {
     tmp = -tmp;
   }
   return tmp < 0 ? -elit : elit;
+}
+
+void kissat_protect(kissat *solver, int elit) {
+  kissat_require_initialized(solver);
+  kissat_require_valid_external_internal(elit);
+
+  unsigned ilit = kissat_import_literal(solver, elit);
+  unsigned iidx = IDX(ilit);
+
+  kissat_require(
+        !GET(searches) || PROTECT(iidx) || FLAGS(iidx)->fixed
+        || !FLAGS(iidx)->active,
+        "incremental protection of active unprotected variables not supported");
+
+  kissat_protect_variable(solver, IDX(ilit));
+}
+
+void kissat_unprotect(kissat *solver, int elit) {
+  kissat_require_initialized(solver);
+  kissat_require_valid_external_internal(elit);
+
+  unsigned ilit = kissat_import_literal(solver, elit);
+  unsigned iidx = IDX(ilit);
+  unsigned eidx = ABS(elit);
+
+  kissat_require(ilit != INVALID_LIT, "variable %u not protected", eidx);
+  kissat_require(
+        PROTECT(iidx) || FLAGS(iidx)->fixed,
+        "variable %u not protected", eidx);
+
+  kissat_unprotect_variable(solver, iidx);
 }

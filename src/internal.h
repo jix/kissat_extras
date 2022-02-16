@@ -122,6 +122,7 @@ struct kissat {
 
   assigned *assigned;
   flags *flags;
+  unsigned *protect;
 
   mark *marks;
 

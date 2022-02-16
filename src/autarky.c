@@ -4,6 +4,7 @@
 #include "dense.h"
 #include "inline.h"
 #include "print.h"
+#include "protect.h"
 #include "report.h"
 #include "terminate.h"
 #include "weaken.h"
@@ -129,6 +130,9 @@ static unsigned determine_autarky(kissat *solver, value *autarky,
   unsigned assigned = 0;
   for (all_variables(idx)) {
     if (!ACTIVE(idx)) {
+      continue;
+    }
+    if (PROTECT(idx)) {
       continue;
     }
     value value = saved[idx];

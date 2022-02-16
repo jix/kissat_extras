@@ -108,6 +108,7 @@ static void compact_literal(kissat *solver, unsigned dst_lit,
   LOG("mapping old internal literal %u to %u", src_lit, dst_lit);
   solver->assigned[dst_idx] = solver->assigned[src_idx];
   solver->flags[dst_idx] = solver->flags[src_idx];
+  solver->protect[dst_idx] = solver->protect[src_idx];
 
   solver->phases.best[dst_idx] = solver->phases.best[src_idx];
   solver->phases.saved[dst_idx] = solver->phases.saved[src_idx];
@@ -415,6 +416,7 @@ void kissat_finalize_compacting(kissat *solver, unsigned vars,
 
   memset(solver->assigned + vars, 0, reduced * sizeof(assigned));
   memset(solver->flags + vars, 0, reduced * sizeof(flags));
+  memset(solver->protect + vars, 0, reduced * sizeof(unsigned));
   memset(solver->values + 2 * vars, 0, 2 * reduced * sizeof(value));
   memset(solver->watches + 2 * vars, 0, 2 * reduced * sizeof(watches));
 

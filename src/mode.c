@@ -141,7 +141,7 @@ bool kissat_switching_search_mode(kissat *solver) {
 
   if (limits->mode.conflicts) {
     assert(!solver->stable);
-    assert(!statistics->switched_modes);
+    assert(!statistics->switched_modes || GET(searches));
     if (statistics->conflicts >= limits->mode.conflicts) {
       return true;
     }

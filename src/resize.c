@@ -61,6 +61,7 @@ void kissat_increase_size(kissat *solver, unsigned new_size) {
 #endif
   CREALLOC_VARIABLE_INDEXED(assigned, assigned);
   CREALLOC_VARIABLE_INDEXED(flags, flags);
+  CREALLOC_VARIABLE_INDEXED(unsigned, protect);
   NREALLOC_VARIABLE_INDEXED(links, links);
 
   CREALLOC_LITERAL_INDEXED(mark, marks);
@@ -91,6 +92,7 @@ void kissat_decrease_size(kissat *solver) {
 
   NREALLOC_VARIABLE_INDEXED(assigned, assigned);
   NREALLOC_VARIABLE_INDEXED(flags, flags);
+  NREALLOC_VARIABLE_INDEXED(unsigned, protect);
   NREALLOC_VARIABLE_INDEXED(links, links);
 
   NREALLOC_LITERAL_INDEXED(mark, marks);

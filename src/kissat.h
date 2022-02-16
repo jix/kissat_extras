@@ -17,6 +17,9 @@ void kissat_set_terminate(kissat *solver,
 
 // Additional API functions.
 
+void kissat_protect(kissat *solver, int var);
+void kissat_unprotect(kissat *solver, int var);
+
 void kissat_terminate(kissat *solver);
 void kissat_reserve(kissat *solver, int max_var);
 

@@ -3,6 +3,7 @@
 #include "inline.h"
 #include "print.h"
 #include "proprobe.h"
+#include "protect.h"
 #include "report.h"
 #include "substitute.h"
 #include "terminate.h"
@@ -255,6 +256,9 @@ static bool *add_representative_equivalences(kissat *solver, unsigned *repr) {
 
 static void remove_representative_equivalences(kissat *solver,
       unsigned *repr, bool *eliminate) {
+
+  bool incremental = GET_OPTION(incremental);
+
   if (!solver->inconsistent) {
     for (all_variables(idx)) {
       if (!eliminate[idx]) {
@@ -270,11 +274,13 @@ static void remove_representative_equivalences(kissat *solver,
       assert(other < lit);
       assert(not_other < not_lit);
 
-      REMOVE_CHECKER_BINARY(not_lit, other);
-      DELETE_BINARY_FROM_PROOF(not_lit, other);
+      if (!incremental && !PROTECT(idx)) {
+        REMOVE_CHECKER_BINARY(not_lit, other);
+        DELETE_BINARY_FROM_PROOF(not_lit, other);
 
-      REMOVE_CHECKER_BINARY(lit, not_other);
-      DELETE_BINARY_FROM_PROOF(lit, not_other);
+        REMOVE_CHECKER_BINARY(lit, not_other);
+        DELETE_BINARY_FROM_PROOF(lit, not_other);
+      }
 
       INC(substituted);
       kissat_mark_substituted_variable(solver, idx, other);

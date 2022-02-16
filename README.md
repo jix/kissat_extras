@@ -6,10 +6,11 @@ upstream version of Kissat.
 
 [arminbiere/kissat]:https://github.com/arminbiere/kissat
 
-## New functionality
+## New Functionality
 
-Not much so far, this is a work in progress.
-
+  * Incremental solving
+    * Currently limited to adding clauses on protected variables
+    * No assumption support yet
   * `compile_commands.json` generation from `./configure`
 
 ## Why a Fork?

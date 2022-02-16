@@ -8,8 +8,9 @@
 #include "inline.h"
 #include "inlinescore.h"
 #include "kitten.h"
-#include "propdense.h"
 #include "print.h"
+#include "propdense.h"
+#include "protect.h"
 #include "report.h"
 #include "resolve.h"
 #include "terminate.h"
@@ -418,6 +419,9 @@ static bool can_eliminate_variable(kissat *solver, unsigned idx) {
     return false;
   }
   if (!flags->eliminate) {
+    return false;
+  }
+  if (PROTECT(idx)) {
     return false;
   }
 
