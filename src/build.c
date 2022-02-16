@@ -4,9 +4,10 @@
 #include "kissat.h"
 
 #include <stdio.h>
+#include <string.h>
 
 const char *kissat_signature(void) {
-  return "kissat-" VERSION;
+  return "kissat-extras-" VERSION;
 }
 
 const char *kissat_id(void) {
@@ -18,7 +19,8 @@ const char *kissat_compiler(void) {
 }
 
 const char *kissat_copyright(void) {
-  return "Copyright (c) 2019-2021 Armin Biere JKU Linz";
+  return "Kissat SAT Solver: Copyright (c) 2019-2021 Armin Biere JKU Linz; "
+        "Kissat Extras Patches: Copyright (c) 2022 Jannis Harder";
 }
 
 const char *kissat_version(void) {
@@ -72,8 +74,17 @@ void kissat_banner(const char *prefix, const char *name) {
   printf("%s", name);
   NL();
 
+  const char *copyright = kissat_copyright();
+
+  for (const char *end; end = strstr(copyright, "; "), end;) {
+    PREFIX(BOLD MAGENTA);
+    fwrite(copyright, end - copyright, 1, stdout);
+    NL();
+    copyright = end + 2;
+  }
+
   PREFIX(BOLD MAGENTA);
-  fputs(kissat_copyright(), stdout);
+  fputs(copyright, stdout);
   NL();
 
   if (prefix) {

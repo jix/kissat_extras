@@ -243,7 +243,7 @@ static bool parsed_one_option_and_return_zero_exit_code(char *arg) {
     return true;
   }
   if (!strcmp(arg, "--banner")) {
-    kissat_banner(0, "KISSAT SAT Solver");
+    kissat_banner(0, "Kissat Extras SAT Solver");
     return true;
   }
   if (!strcmp(arg, "--build")) {
@@ -817,7 +817,7 @@ static int run_application(kissat *solver,
 #ifndef QUIET
   kissat_section(solver, "banner");
   if (!GET_OPTION(quiet)) {
-    kissat_banner("c ", "KISSAT SAT Solver");
+    kissat_banner("c ", "Kissat Extras SAT Solver");
     fflush(stdout);
   }
 #endif
