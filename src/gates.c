@@ -35,7 +35,7 @@ void kissat_unmark_binaries(kissat *solver, unsigned lit) {
     }
 }
 
-bool kissat_find_gates(kissat *solver, unsigned lit) {
+bool kissat_find_gates(kissat *solver, unsigned lit, bool eq_only) {
   solver->gate_eliminated = 0;
   solver->resolve_gate = false;
   if (!GET_OPTION(extract)) {
@@ -49,20 +49,22 @@ bool kissat_find_gates(kissat *solver, unsigned lit) {
   bool res = false;
   if (kissat_find_equivalence_gate(solver, lit)) {
     res = true;
-  } else if (kissat_find_and_gate(solver, lit, 0)) {
-    res = true;
-  } else if (kissat_find_and_gate(solver, not_lit, 1)) {
-    res = true;
-  } else if (kissat_find_if_then_else_gate(solver, lit, 0)) {
-    res = true;
-  } else if (kissat_find_if_then_else_gate(solver, not_lit, 1)) {
-    res = true;
-  } else if (kissat_find_xor_gate(solver, lit, 0)) {
-    res = true;
-  } else if (kissat_find_xor_gate(solver, not_lit, 1)) {
-    res = true;
-  } else if (kissat_find_definition(solver, lit)) {
-    res = true;
+  } else if (!eq_only) {
+    if (kissat_find_and_gate(solver, lit, 0)) {
+      res = true;
+    } else if (kissat_find_and_gate(solver, not_lit, 1)) {
+      res = true;
+    } else if (kissat_find_if_then_else_gate(solver, lit, 0)) {
+      res = true;
+    } else if (kissat_find_if_then_else_gate(solver, not_lit, 1)) {
+      res = true;
+    } else if (kissat_find_xor_gate(solver, lit, 0)) {
+      res = true;
+    } else if (kissat_find_xor_gate(solver, not_lit, 1)) {
+      res = true;
+    } else if (kissat_find_definition(solver, lit)) {
+      res = true;
+    }
   }
   if (res) {
     INC(gates_extracted);

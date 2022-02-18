@@ -30,6 +30,7 @@ bool kissat_find_equivalence_gate(kissat *solver, unsigned lit) {
     return false;
   }
   LOG("found equivalence gate %s = %s", LOGLIT(lit), LOGLIT(replace));
+  solver->found_equivalence = replace;
 
   const watch watch1 = kissat_binary_watch(replace, false, false);
   PUSH_STACK(solver->gates[1], watch1);

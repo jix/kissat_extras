@@ -218,6 +218,7 @@ struct kissat {
   patches xorted[2];
   unsigneds resolvents;
   bool resolve_gate;
+  unsigned found_equivalence;
 
   struct kitten *kitten;
 #ifdef METRICS

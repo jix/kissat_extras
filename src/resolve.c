@@ -3,6 +3,7 @@
 #include "inline.h"
 #include "inlinescore.h"
 #include "print.h"
+#include "protect.h"
 #include "resolve.h"
 
 #include <inttypes.h>
@@ -281,7 +282,11 @@ bool kissat_generate_resolvents(kissat *solver, unsigned idx,
 
   bool update = false;
   bool pure = false;
+  bool swapped = false;
+  bool protected = PROTECT(idx);
   uint64_t limit;
+
+  solver->found_equivalence = INVALID_LIT;
 
   {
     unsigned pos_count = occurrences_literal(solver, lit, &update);
@@ -290,6 +295,7 @@ bool kissat_generate_resolvents(kissat *solver, unsigned idx,
     if (pos_count > neg_count) {
       SWAP(unsigned, lit, not_lit);
       SWAP(size_t, pos_count, neg_count);
+      swapped = true;
     }
 
     const unsigned occlim = solver->bounds.eliminate.occurrences;
@@ -317,10 +323,14 @@ bool kissat_generate_resolvents(kissat *solver, unsigned idx,
 
   INC(eliminate_attempted);
   if (pure) {
-    return true;
+    return !protected;
   }
 
-  const bool gates = !pure && kissat_find_gates(solver, lit);
+  const bool gates = !pure && kissat_find_gates(solver, lit, protected);
+
+  if (swapped && solver->found_equivalence != INVALID_LIT) {
+    solver->found_equivalence = NOT(solver->found_equivalence);
+  }
 
   statches *const gates0 = &solver->gates[0];
   statches *const gates1 = &solver->gates[1];
@@ -357,6 +367,8 @@ bool kissat_generate_resolvents(kissat *solver, unsigned idx,
         }
       }
     }
+  } else if (protected) {
+    failed = true;
   } else {
     LOG("no gate extracted thus resolving all clauses");
     if (!generate_resolvents(solver, lit,

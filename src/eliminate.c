@@ -369,6 +369,64 @@ static void weaken_clauses(kissat *solver, unsigned lit) {
   kissat_flush_units_while_connected(solver);
 }
 
+static void eliminate_equivalence(kissat *solver,
+      unsigned idx, unsigned replacament) {
+  const unsigned lit = LIT(idx);
+  const unsigned not_lit = NOT(lit);
+
+#ifdef CHECKING_OR_PROVING
+  if (GET_OPTION(incremental) || PROTECT(idx)) {
+    const unsigned not_replacament = NOT(replacament);
+
+    CHECK_AND_ADD_BINARY(not_lit, replacament);
+    ADD_BINARY_TO_PROOF(not_lit, replacament);
+
+    CHECK_AND_ADD_BINARY(lit, not_replacament);
+    ADD_BINARY_TO_PROOF(lit, not_replacament);
+  }
+#endif
+
+  watches *pos_watches = &WATCHES(lit);
+
+  for (all_binary_large_watches(watch, *pos_watches)) {
+    if (watch.type.binary) {
+      const unsigned other = watch.binary.lit;
+      assert(!watch.binary.redundant);
+      kissat_eliminate_binary(solver, lit, other);
+    } else {
+      const reference ref = watch.large.ref;
+      clause *c = kissat_dereference_clause(solver, ref);
+      if (c->garbage) {
+        continue;
+      }
+      LOGCLS(c, "removing %s", LOGLIT(lit));
+      kissat_eliminate_clause(solver, c, lit);
+    }
+  }
+  RELEASE_WATCHES(*pos_watches);
+
+  watches *neg_watches = &WATCHES(not_lit);
+
+  for (all_binary_large_watches(watch, *neg_watches)) {
+    if (watch.type.binary) {
+      const unsigned other = watch.binary.lit;
+      assert(!watch.binary.redundant);
+      kissat_eliminate_binary(solver, not_lit, other);
+    } else {
+      const reference ref = watch.large.ref;
+      clause *d = kissat_dereference_clause(solver, ref);
+      if (d->garbage) {
+        continue;
+      }
+      LOGCLS(d, "removing %s", LOGLIT(not_lit));
+      kissat_eliminate_clause(solver, d, not_lit);
+    }
+  }
+  RELEASE_WATCHES(*neg_watches);
+
+  kissat_flush_units_while_connected(solver);
+}
+
 static void try_to_eliminate_all_variables_again(kissat *solver) {
   LOG("trying to elimination all variables again");
   flags *all_flags = solver->flags;
@@ -421,9 +479,6 @@ static bool can_eliminate_variable(kissat *solver, unsigned idx) {
   if (!flags->eliminate) {
     return false;
   }
-  if (PROTECT(idx)) {
-    return false;
-  }
 
   LOG("next elimination candidate %s", LOGVAR(idx));
 
@@ -444,10 +499,18 @@ static bool eliminate_variable(kissat *solver, unsigned idx) {
   }
   connect_resolvents(solver);
   if (!solver->inconsistent) {
-    weaken_clauses(solver, lit);
+    if (solver->found_equivalence == INVALID_LIT) {
+      weaken_clauses(solver, lit);
+    } else {
+      eliminate_equivalence(solver, idx, solver->found_equivalence);
+    }
   }
   INC(eliminated);
-  kissat_mark_eliminated_variable(solver, idx);
+  if (solver->found_equivalence == INVALID_LIT) {
+    kissat_mark_eliminated_variable(solver, idx);
+  } else {
+    kissat_mark_substituted_variable(solver, idx, solver->found_equivalence);
+  }
   if (solver->gate_eliminated) {
     INC(gates_eliminated);
 #ifdef METRICS
