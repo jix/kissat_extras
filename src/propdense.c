@@ -60,7 +60,7 @@ static inline bool non_watching_propagate_literal(kissat *solver,
           satisfied = true;
           assert(!solver->level);
           LOGCLS(c, "%s satisfied", LOGLIT(other));
-          kissat_mark_clause_as_garbage(solver, c);
+          kissat_mark_clause_as_garbage(solver, false, c);
           break;
         }
         if (!non_false++) {

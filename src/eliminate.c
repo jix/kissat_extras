@@ -125,14 +125,16 @@ void kissat_update_after_removing_clause(kissat *solver,
   update_after_removing_clause(solver, c, except);
 }
 
-void kissat_eliminate_binary(kissat *solver, unsigned lit, unsigned other) {
+void kissat_eliminate_binary(kissat *solver, bool weakened, unsigned lit,
+      unsigned other) {
   kissat_disconnect_binary(solver, other, lit);
-  kissat_delete_binary(solver, false, false, lit, other);
+  kissat_delete_binary(solver, false, false, weakened, lit, other);
   update_after_removing_variable(solver, IDX(other));
 }
 
-void kissat_eliminate_clause(kissat *solver, clause *c, unsigned lit) {
-  kissat_mark_clause_as_garbage(solver, c);
+void kissat_eliminate_clause(kissat *solver, bool weakened, clause *c,
+      unsigned lit) {
+  kissat_mark_clause_as_garbage(solver, weakened, c);
   update_after_removing_clause(solver, c, lit);
 }
 
@@ -217,7 +219,7 @@ void kissat_flush_units_while_connected(kissat *solver) {
         const reference ref = watch.large.ref;
         clause *c = kissat_dereference_clause(solver, ref);
         if (!c->garbage) {
-          kissat_eliminate_clause(solver, c, unit);
+          kissat_eliminate_clause(solver, false, c, unit);
         }
         assert(c->garbage);
         q--;
@@ -298,11 +300,12 @@ static void weaken_clauses(kissat *solver, unsigned lit) {
     if (watch.type.binary) {
       const unsigned other = watch.binary.lit;
       const value value = values[other];
-      if (value <= 0) {
+      const bool weaken = value <= 0;
+      if (weaken) {
         kissat_weaken_binary(solver, lit, other);
       }
       assert(!watch.binary.redundant);
-      kissat_eliminate_binary(solver, lit, other);
+      kissat_eliminate_binary(solver, weaken, lit, other);
     } else {
       const reference ref = watch.large.ref;
       clause *c = kissat_dereference_clause(solver, ref);
@@ -322,7 +325,7 @@ static void weaken_clauses(kissat *solver, unsigned lit) {
         kissat_weaken_clause(solver, lit, c);
       }
       LOGCLS(c, "removing %s", LOGLIT(lit));
-      kissat_eliminate_clause(solver, c, lit);
+      kissat_eliminate_clause(solver, !satisfied, c, lit);
     }
   }
   RELEASE_WATCHES(*pos_watches);
@@ -335,10 +338,11 @@ static void weaken_clauses(kissat *solver, unsigned lit) {
       const unsigned other = watch.binary.lit;
       assert(!watch.binary.redundant);
       const value value = values[other];
-      if (!optimize && value <= 0) {
+      const bool weaken = !optimize && value <= 0;
+      if (weaken) {
         kissat_weaken_binary(solver, not_lit, other);
       }
-      kissat_eliminate_binary(solver, not_lit, other);
+      kissat_eliminate_binary(solver, weaken, not_lit, other);
     } else {
       const reference ref = watch.large.ref;
       clause *d = kissat_dereference_clause(solver, ref);
@@ -354,11 +358,12 @@ static void weaken_clauses(kissat *solver, unsigned lit) {
         satisfied = true;
         break;
       }
-      if (!optimize && !satisfied) {
+      const bool weaken = !optimize && !satisfied;
+      if (weaken) {
         kissat_weaken_clause(solver, not_lit, d);
       }
       LOGCLS(d, "removing %s", LOGLIT(not_lit));
-      kissat_eliminate_clause(solver, d, not_lit);
+      kissat_eliminate_clause(solver, weaken, d, not_lit);
     }
   }
   if (optimize && !EMPTY_WATCHES(*neg_watches)) {
@@ -373,18 +378,7 @@ static void eliminate_equivalence(kissat *solver,
       unsigned idx, unsigned replacament) {
   const unsigned lit = LIT(idx);
   const unsigned not_lit = NOT(lit);
-
-#ifdef CHECKING_OR_PROVING
-  if (GET_OPTION(incremental) || PROTECT(idx)) {
-    const unsigned not_replacament = NOT(replacament);
-
-    CHECK_AND_ADD_BINARY(not_lit, replacament);
-    ADD_BINARY_TO_PROOF(not_lit, replacament);
-
-    CHECK_AND_ADD_BINARY(lit, not_replacament);
-    ADD_BINARY_TO_PROOF(lit, not_replacament);
-  }
-#endif
+  const unsigned not_replacament = NOT(replacament);
 
   watches *pos_watches = &WATCHES(lit);
 
@@ -392,7 +386,9 @@ static void eliminate_equivalence(kissat *solver,
     if (watch.type.binary) {
       const unsigned other = watch.binary.lit;
       assert(!watch.binary.redundant);
-      kissat_eliminate_binary(solver, lit, other);
+      const bool weakened =
+            other == not_replacament && GET_OPTION(incremental);
+      kissat_eliminate_binary(solver, weakened, lit, other);
     } else {
       const reference ref = watch.large.ref;
       clause *c = kissat_dereference_clause(solver, ref);
@@ -400,7 +396,7 @@ static void eliminate_equivalence(kissat *solver,
         continue;
       }
       LOGCLS(c, "removing %s", LOGLIT(lit));
-      kissat_eliminate_clause(solver, c, lit);
+      kissat_eliminate_clause(solver, false, c, lit);
     }
   }
   RELEASE_WATCHES(*pos_watches);
@@ -411,7 +407,9 @@ static void eliminate_equivalence(kissat *solver,
     if (watch.type.binary) {
       const unsigned other = watch.binary.lit;
       assert(!watch.binary.redundant);
-      kissat_eliminate_binary(solver, not_lit, other);
+      const bool weakened =
+            other == replacament && GET_OPTION(incremental);
+      kissat_eliminate_binary(solver, weakened, not_lit, other);
     } else {
       const reference ref = watch.large.ref;
       clause *d = kissat_dereference_clause(solver, ref);
@@ -419,7 +417,7 @@ static void eliminate_equivalence(kissat *solver,
         continue;
       }
       LOGCLS(d, "removing %s", LOGLIT(not_lit));
-      kissat_eliminate_clause(solver, d, not_lit);
+      kissat_eliminate_clause(solver, false, d, not_lit);
     }
   }
   RELEASE_WATCHES(*neg_watches);

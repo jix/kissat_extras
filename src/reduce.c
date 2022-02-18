@@ -89,7 +89,7 @@ static bool collect_reducibles(kissat *solver, reducibles *reds,
 #ifndef QUIET
         flushed_hyper_ternary_clauses++;
 #endif
-        kissat_mark_clause_as_garbage(solver, c);
+        kissat_mark_clause_as_garbage(solver, false, c);
       }
       continue;
     }
@@ -164,7 +164,7 @@ static void mark_less_useful_clauses_as_garbage(kissat *solver,
     assert(!c->reason);
     assert(c->redundant);
     LOGCLS(c, "reducing");
-    kissat_mark_clause_as_garbage(solver, c);
+    kissat_mark_clause_as_garbage(solver, false, c);
     reduced++;
   }
   ADD(clauses_reduced, reduced);

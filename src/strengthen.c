@@ -140,7 +140,7 @@ static clause *binary_on_the_fly_strengthen(kissat *solver, clause *c,
   const reference ref = kissat_reference_clause(solver, c);
   kissat_unwatch_blocking(solver, c->lits[0], ref);
   kissat_unwatch_blocking(solver, c->lits[1], ref);
-  kissat_mark_clause_as_garbage(solver, c);
+  kissat_mark_clause_as_garbage(solver, false, c);
   clause *conflict =
         kissat_binary_conflict(solver, redundant, first, second);
   INC(conflicts);
@@ -169,7 +169,7 @@ void kissat_on_the_fly_subsume(kissat *solver, clause *c, clause *d) {
   assert(!d->garbage);
   assert(c->size > 1);
   assert(c->size <= d->size);
-  kissat_mark_clause_as_garbage(solver, d);
+  kissat_mark_clause_as_garbage(solver, false, d);
   INC(on_the_fly_subsumed);
   if (d->redundant) {
     return;

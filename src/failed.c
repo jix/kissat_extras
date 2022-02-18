@@ -62,7 +62,7 @@ static size_t schedule_probes(kissat *solver, unsigned round,
     for (all_literals_in_clause(lit, c)) {
       const value value = values[lit];
       if (value > 0) {
-        kissat_mark_clause_as_garbage(solver, c);
+        kissat_mark_clause_as_garbage(solver, false, c);
         size = UINT_MAX;
         break;
       }

@@ -70,7 +70,7 @@ static bool simplify_vivification_candidate(kissat *solver, clause *const c) {
     if (value > 0) {
       satisfied = true;
       LOGCLS(c, "vivification %s satisfied candidate", LOGLIT(lit));
-      kissat_mark_clause_as_garbage(solver, c);
+      kissat_mark_clause_as_garbage(solver, false, c);
       break;
     }
     if (!value) {
@@ -93,7 +93,7 @@ static bool simplify_vivification_candidate(kissat *solver, clause *const c) {
     const unsigned second = PEEK_STACK(solver->clause, 1);
     LOGBINARY(first, second, "vivification shrunken candidate");
     kissat_new_binary_clause(solver, c->redundant, first, second);
-    kissat_mark_clause_as_garbage(solver, c);
+    kissat_mark_clause_as_garbage(solver, false, c);
   } else {
     CHECK_AND_ADD_STACK(solver->clause);
     ADD_STACK_TO_PROOF(solver->clause);
@@ -485,7 +485,7 @@ static bool vivify_learn(kissat *solver, clause *c,
     const unsigned unit = PEEK_STACK(solver->clause, 0);
     kissat_learned_unit(solver, unit);
     solver->iterating = true;
-    kissat_mark_clause_as_garbage(solver, c);
+    kissat_mark_clause_as_garbage(solver, false, c);
     assert(!solver->level);
     (void) kissat_probing_propagate(solver, 0, true);
     vivify_inc_strengthened(solver, c);
@@ -570,7 +570,7 @@ static bool vivify_learn(kissat *solver, clause *c,
       } else {
         (void) kissat_new_irredundant_clause(solver);
       }
-      kissat_mark_clause_as_garbage(solver, c);
+      kissat_mark_clause_as_garbage(solver, false, c);
       vivify_inc_strengthened(solver, c);
       res = true;
     } else if (size < non_false) {
@@ -634,7 +634,7 @@ static bool vivify_learn(kissat *solver, clause *c,
     } else if (irredundant && !c->redundant) {
       LOGCLS(c, "vivify subsumed");
       vivify_inc_subsume(solver, c);
-      kissat_mark_clause_as_garbage(solver, c);
+      kissat_mark_clause_as_garbage(solver, false, c);
       res = true;
     } else {
       LOG("vivify failed");
@@ -663,7 +663,7 @@ static bool vivify_clause(kissat *solver, clause *c,
     }
     if (value > 0) {
       LOGCLS(c, "%s satisfied", LOGLIT(lit));
-      kissat_mark_clause_as_garbage(solver, c);
+      kissat_mark_clause_as_garbage(solver, false, c);
       break;
     }
     PUSH_STACK(*sorted, lit);
@@ -830,7 +830,7 @@ static bool vivify_clause(kissat *solver, clause *c,
       assert(conflict);
     } else if (GET_OPTION(vivifyimply) == 2) {
       LOGCLS(c, "vivify implied");
-      kissat_mark_clause_as_garbage(solver, c);
+      kissat_mark_clause_as_garbage(solver, false, c);
       INC(vivify_implied);
       res = true;
     }
@@ -851,7 +851,7 @@ static bool vivify_clause(kissat *solver, clause *c,
 
     if (subsumed) {
       LOGCLS(c, "vivify subsumed");
-      kissat_mark_clause_as_garbage(solver, c);
+      kissat_mark_clause_as_garbage(solver, false, c);
       vivify_inc_subsume(solver, c);
       res = true;
     } else {

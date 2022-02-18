@@ -59,7 +59,7 @@ static void flush_large_watches(kissat *solver,
           if (lit < other) {
             const bool red = watch.binary.redundant;
             const bool hyper = watch.binary.hyper;
-            kissat_delete_binary(solver, red, hyper, lit, other);
+            kissat_delete_binary(solver, red, hyper, false, lit, other);
             collected++;
           }
         }
@@ -125,7 +125,7 @@ static void resume_watching_binaries_after_elimination(kissat *solver,
     } else {
       const bool redundant = watch.binary.redundant;
       const bool hyper = watch.binary.hyper;
-      kissat_delete_binary(solver, redundant, hyper, first, second);
+      kissat_delete_binary(solver, redundant, hyper, false, first, second);
 #ifdef LOGGING
       flushed_eliminated++;
 #endif
@@ -219,7 +219,7 @@ static void resume_watching_large_clauses_after_elimination(kissat *solver) {
       }
     }
     if (collect) {
-      kissat_mark_clause_as_garbage(solver, c);
+      kissat_mark_clause_as_garbage(solver, false, c);
       continue;
     }
 

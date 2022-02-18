@@ -54,7 +54,7 @@ static unsigned copy_literals(kissat *solver, unsigned lit,
     } else {
       const value value = values[other];
       if (value > 0) {
-        kissat_eliminate_clause(solver, c, other);
+        kissat_eliminate_clause(solver, false, c, other);
         LOG("found satisfied %s", LOGLIT(other));
         return UINT_MAX;
       }
@@ -137,7 +137,7 @@ static bool match_lits_ref(kissat *solver, const value *marks,
   for (all_literals_in_clause(lit, c)) {
     const value value = values[lit];
     if (value > 0) {
-      kissat_eliminate_clause(solver, c, INVALID_LIT);
+      kissat_eliminate_clause(solver, false, c, INVALID_LIT);
       return false;
     }
     if (value < 0) {

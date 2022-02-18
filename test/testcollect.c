@@ -70,14 +70,14 @@ static void add_large_irredundant_clause(kissat *solver) {
 static void mark_redundant_clauses_as_garbage(kissat *solver) {
   for (all_clauses(c))
     if (c->redundant) {
-      kissat_mark_clause_as_garbage(solver, c);
+      kissat_mark_clause_as_garbage(solver, false, c);
     }
 }
 
 static void mark_irredundant_clauses_as_garbage(kissat *solver) {
   for (all_clauses(c))
     if (!c->redundant) {
-      kissat_mark_clause_as_garbage(solver, c);
+      kissat_mark_clause_as_garbage(solver, false, c);
     }
 }
 

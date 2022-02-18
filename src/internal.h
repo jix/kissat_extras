@@ -119,6 +119,7 @@ struct kissat {
   imports import;
   extensions extend;
   unsigneds witness;
+  bool restore;
 
   assigned *assigned;
   flags *flags;
@@ -180,6 +181,7 @@ struct kissat {
   bool clause_satisfied;
   bool clause_shrink;
   bool clause_trivial;
+  bool clause_elits_substituted;
 
   unsigneds clause;
   unsigneds shadow;

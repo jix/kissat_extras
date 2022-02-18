@@ -87,7 +87,7 @@ static bool backward_subsume_lits(kissat *solver, reference ignore,
         LOGBINARY(min_lit, match, "duplicated");
         INC(duplicated);
         kissat_disconnect_binary(solver, other, min_lit);
-        kissat_delete_binary(solver, false, false, min_lit, other);
+        kissat_delete_binary(solver, false, false, false, min_lit, other);
         kissat_update_after_removing_variable(solver, IDX(other));
         q--;
       } else {
@@ -129,7 +129,7 @@ static bool backward_subsume_lits(kissat *solver, reference ignore,
         const value value = values[lit];
         if (value > 0) {
           LOGCLS(c, "satisfied by %s", LOGLIT(lit));
-          kissat_mark_clause_as_garbage(solver, c);
+          kissat_mark_clause_as_garbage(solver, false, c);
           kissat_update_after_removing_clause(solver, c,
                 INVALID_LIT);
           break;
@@ -172,7 +172,7 @@ static bool backward_subsume_lits(kissat *solver, reference ignore,
         LOGCLS(c, "backward subsumed");
         INC(subsumed);
         INC(backward_subsumed);
-        kissat_mark_clause_as_garbage(solver, c);
+        kissat_mark_clause_as_garbage(solver, false, c);
         kissat_update_after_removing_clause(solver, c, INVALID_LIT);
         q--;
         continue;
@@ -194,7 +194,7 @@ static bool backward_subsume_lits(kissat *solver, reference ignore,
         }
       }
       if (satisfied) {
-        kissat_mark_clause_as_garbage(solver, c);
+        kissat_mark_clause_as_garbage(solver, false, c);
         kissat_update_after_removing_clause(solver, c, INVALID_LIT);
         q--;
         continue;

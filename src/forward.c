@@ -34,7 +34,7 @@ static size_t remove_duplicated_binaries_with_literal(kissat *solver,
     if (marked) {
       q--;
       if (lit < other) {
-        kissat_delete_binary(solver, false, false, lit, other);
+        kissat_delete_binary(solver, false, false, false, lit, other);
         INC(duplicated);
         INC(subsumed);
       }
@@ -153,7 +153,7 @@ static void find_forward_subsumption_candidates(kissat *solver,
       }
       if (values[lit] > 0) {
         LOGCLS(c, "satisfied by %s", LOGLIT(lit));
-        kissat_mark_clause_as_garbage(solver, c);
+        kissat_mark_clause_as_garbage(solver, false, c);
         assert(c->garbage);
         break;
       }
@@ -263,7 +263,7 @@ static inline bool forward_literal(kissat *solver, unsigned lit, bool binaries,
         }
         if (value > 0) {
           LOGCLS(d, "satisfied by %s", LOGLIT(other));
-          kissat_mark_clause_as_garbage(solver, d);
+          kissat_mark_clause_as_garbage(solver, false, d);
           assert(d->garbage);
           candidate = INVALID_LIT;
           subsume = false;
@@ -354,7 +354,7 @@ static bool forward_subsumed_clause(kissat *solver, clause *c,
     }
     if (value > 0) {
       LOGCLS(c, "satisfied by %s", LOGLIT(lit));
-      kissat_mark_clause_as_garbage(solver, c);
+      kissat_mark_clause_as_garbage(solver, false, c);
       assert(c->garbage);
       break;
     }
@@ -387,7 +387,7 @@ static bool forward_subsumed_clause(kissat *solver, clause *c,
     assert(VALID_INTERNAL_LITERAL(unit));
     LOG("new remaining non-false literal unit clause %s", LOGLIT(unit));
     kissat_learned_unit(solver, unit);
-    kissat_mark_clause_as_garbage(solver, c);
+    kissat_mark_clause_as_garbage(solver, false, c);
     kissat_flush_units_while_connected(solver);
     return false;
   }
@@ -401,7 +401,7 @@ static bool forward_subsumed_clause(kissat *solver, clause *c,
 
   if (subsume) {
     LOGCLS(c, "forward subsumed");
-    kissat_mark_clause_as_garbage(solver, c);
+    kissat_mark_clause_as_garbage(solver, false, c);
     INC(subsumed);
     INC(forward_subsumed);
   } else if (remove != INVALID_LIT) {
@@ -413,7 +413,7 @@ static bool forward_subsumed_clause(kissat *solver, clause *c,
       assert(VALID_INTERNAL_LITERAL(unit));
       LOG("forward strengthened unit clause %s", LOGLIT(unit));
       kissat_learned_unit(solver, unit);
-      kissat_mark_clause_as_garbage(solver, c);
+      kissat_mark_clause_as_garbage(solver, false, c);
       *removed = true;
       kissat_flush_units_while_connected(solver);
       LOGCLS(c, "%s satisfied", LOGLIT(unit));

@@ -2,7 +2,7 @@
 #include "inline.h"
 #include "import.h"
 
-static void undo_eliminated_assignment(kissat *solver) {
+void kissat_undo_eliminated_assignment(kissat *solver) {
   size_t size_etrail = SIZE_STACK(solver->etrail);
 #ifdef LOGGING
   size_t size_eliminated = SIZE_STACK(solver->eliminated);
@@ -47,9 +47,9 @@ void kissat_extend(kissat *solver) {
   assert(!solver->extended);
 
   START(extend);
-  solver->extended = true;
 
-  undo_eliminated_assignment(solver);
+  kissat_undo_eliminated_assignment(solver);
+  solver->extended = true;
 
   LOG("extending solution with reconstruction stack of size %zu",
         SIZE_STACK(solver->extend));

@@ -15,7 +15,9 @@ void kissat_flush_units_while_connected(struct kissat *);
 bool kissat_eliminating(struct kissat *);
 int kissat_eliminate(struct kissat *);
 
-void kissat_eliminate_binary(struct kissat *, unsigned, unsigned);
-void kissat_eliminate_clause(struct kissat *, struct clause *, unsigned);
+void kissat_eliminate_binary(
+      struct kissat *, bool weakened, unsigned, unsigned);
+void kissat_eliminate_clause(
+      struct kissat *, bool weakened, struct clause *, unsigned);
 
 #endif

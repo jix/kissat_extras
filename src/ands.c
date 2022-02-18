@@ -39,7 +39,7 @@ bool kissat_find_and_gate(kissat *solver, unsigned lit, unsigned negative) {
       }
       const value value = values[other];
       if (value > 0) {
-        kissat_eliminate_clause(solver, c, INVALID_LIT);
+        kissat_eliminate_clause(solver, false, c, INVALID_LIT);
         base = 0;
         break;
       }

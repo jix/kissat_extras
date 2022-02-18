@@ -116,7 +116,7 @@ void kissat_connect_irredundant_large_clauses(kissat *solver) {
       break;
     }
     if (satisfied) {
-      kissat_mark_clause_as_garbage(solver, c);
+      kissat_mark_clause_as_garbage(solver, false, c);
       continue;
     }
     const reference ref = (ward *) c - arena;

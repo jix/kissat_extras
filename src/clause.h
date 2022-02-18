@@ -81,8 +81,8 @@ void kissat_connect_clause(struct kissat *, clause *);
 
 clause *kissat_delete_clause(struct kissat *, clause *);
 void kissat_delete_binary(struct kissat *,
-      bool redundant, bool hyper, unsigned, unsigned);
+      bool redundant, bool hyper, bool weakened, unsigned, unsigned);
 
-void kissat_mark_clause_as_garbage(struct kissat *, clause *);
+void kissat_mark_clause_as_garbage(struct kissat *, bool weakened, clause *);
 
 #endif

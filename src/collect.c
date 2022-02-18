@@ -42,7 +42,7 @@ static void flush_watched_clauses_by_literal(kissat *solver, litpairs *hyper,
         if (lit < other)
           kissat_delete_binary(solver,
                 head.binary.redundant,
-                head.binary.hyper, lit, other);
+                head.binary.hyper, false, lit, other);
       } else {
         assert(!lit_fixed);
         assert(!other_fixed);
@@ -139,7 +139,7 @@ static void flush_hyper_binary_watches(kissat *solver, litpairs *hyper,
       kissat_watch_other(solver, true, true, mother, mlit);
     } else {
       LOGBINARY(lit, other, "flushing hyper SRC");
-      kissat_delete_binary(solver, true, true, lit, other);
+      kissat_delete_binary(solver, true, true, false, lit, other);
       flushed++;
     }
   }

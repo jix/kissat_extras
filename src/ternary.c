@@ -360,7 +360,7 @@ static void remove_ternary_subsumed_clauses(kissat *solver,
     clause *c = kissat_dereference_clause(solver, ref);
     assert(c->garbage);
     c->garbage = false;
-    kissat_mark_clause_as_garbage(solver, c);
+    kissat_mark_clause_as_garbage(solver, false, c);
     marked++;
   }
   LOG("marked %zu clauses as garbage", marked);

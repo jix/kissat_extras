@@ -148,14 +148,16 @@ reference kissat_new_redundant_clause(kissat *solver, unsigned glue) {
   return new_clause(solver, false, true, glue, size, lits);
 }
 
-static void mark_clause_as_garbage(kissat *solver, clause *c) {
+static void mark_clause_as_garbage(kissat *solver, bool weakened, clause *c) {
   assert(!c->garbage);
   LOGCLS(c, "garbage");
   if (!c->redundant) {
     kissat_mark_removed_literals(solver, c->size, c->lits);
   }
-  REMOVE_CHECKER_CLAUSE(c);
-  DELETE_CLAUSE_FROM_PROOF(c);
+  if (!weakened || !GET_OPTION(incremental)) {
+    REMOVE_CHECKER_CLAUSE(c);
+    DELETE_CLAUSE_FROM_PROOF(c);
+  }
   if (c->hyper) {
     assert(c->size == 3);
     assert(c->redundant);
@@ -165,9 +167,9 @@ static void mark_clause_as_garbage(kissat *solver, clause *c) {
   c->garbage = true;
 }
 
-void kissat_mark_clause_as_garbage(kissat *solver, clause *c) {
+void kissat_mark_clause_as_garbage(kissat *solver, bool weakened, clause *c) {
   assert(!c->garbage);
-  mark_clause_as_garbage(solver, c);
+  mark_clause_as_garbage(solver, weakened, c);
   size_t bytes = kissat_actual_bytes_of_clause(c);
   ADD(arena_garbage, bytes);
 }
@@ -183,7 +185,7 @@ clause *kissat_delete_clause(kissat *solver, clause *c) {
 }
 
 void kissat_delete_binary(kissat *solver,
-      bool redundant, bool hyper, unsigned a, unsigned b) {
+      bool redundant, bool hyper, bool weakened, unsigned a, unsigned b) {
   LOGBINARY(a, b, "delete");
   if (!redundant) {
     kissat_mark_removed_literal(solver, a);
@@ -191,8 +193,10 @@ void kissat_delete_binary(kissat *solver,
   } else if (hyper) {
     DEC(hyper_binaries);
   }
-  REMOVE_CHECKER_BINARY(a, b);
-  DELETE_BINARY_FROM_PROOF(a, b);
+  if (!weakened || !GET_OPTION(incremental)) {
+    REMOVE_CHECKER_BINARY(a, b);
+    DELETE_BINARY_FROM_PROOF(a, b);
+  }
   dec_clause(solver, redundant);
   INC(clauses_deleted);
 }

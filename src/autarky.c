@@ -31,7 +31,7 @@ static inline unsigned propagate_clause(kissat *solver,
     value other_value = values[other];
     if (other_value > 0) {
       LOGCLS(c, "%s satisfied", LOGLIT(other));
-      kissat_mark_clause_as_garbage(solver, c);
+      kissat_mark_clause_as_garbage(solver, false, c);
       return 0;
     }
     if (other_value < 0) {
@@ -329,7 +329,7 @@ static void flush_large_connected_and_autarky_binaries(kissat *solver) {
         *q++ = watch;
       } else if (lit < other) {
         assert(!watch.binary.redundant);
-        kissat_delete_binary(solver, false, false, lit, other);
+        kissat_delete_binary(solver, false, false, false, lit, other);
         flushed_binaries++;
       }
     }
@@ -374,7 +374,7 @@ static void autarky_literal(kissat *solver, watches *all_watches,
         assert(!c->redundant);
         if (!c->garbage) {
           kissat_weaken_clause(solver, lit, c);
-          kissat_mark_clause_as_garbage(solver, c);
+          kissat_mark_clause_as_garbage(solver, true, c);
         }
       }
     }
@@ -415,6 +415,9 @@ void kissat_autarky(kissat *solver, char type) {
   }
   if (!solver->enabled.autarky) {
     return;
+  }
+  if (GET_OPTION(incremental)) {
+    return; // TODO lift this restriction
   }
   RETURN_IF_DELAYED(autarky);
   assert(solver->watching);

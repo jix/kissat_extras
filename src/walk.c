@@ -404,7 +404,7 @@ static void connect_large_counters(walker *walker, unsigned counter_ref) {
         continue;
       }
       LOGCLS(c, "%s satisfied", LOGLIT(lit));
-      kissat_mark_clause_as_garbage(solver, c);
+      kissat_mark_clause_as_garbage(solver, false, c);
       assert(c->garbage);
       continue_with_next_clause = true;
       break;

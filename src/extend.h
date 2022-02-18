@@ -27,6 +27,8 @@ static inline extension kissat_extension(bool blocking, int lit) {
 
 struct kissat;
 
+void kissat_undo_eliminated_assignment(struct kissat *solver);
 void kissat_extend(struct kissat *solver);
+
 
 #endif

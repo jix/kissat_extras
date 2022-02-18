@@ -135,6 +135,7 @@ static void compact_literal(kissat *solver, unsigned dst_lit,
 }
 
 static unsigned map_idx(kissat *solver, unsigned iidx) {
+  COVER(ELIMINATED(iidx));
   int elit = PEEK_STACK(solver->export, iidx);
   if (!elit) {
     return INVALID_IDX;

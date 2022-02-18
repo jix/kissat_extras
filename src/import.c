@@ -40,7 +40,15 @@ static inline unsigned import_literal(kissat *solver, int elit) {
 
   import *import = &PEEK_STACK(solver->import, repr_eidx);
   if (import->eliminated) {
-    return INVALID_LIT;
+    assert(import->imported);
+    if (!GET_OPTION(incremental)) {
+      return INVALID_LIT;
+    }
+    LOG("restoring external literal %d", elit);
+    import->imported = false;
+    import->eliminated = false;
+
+    solver->restore = true;
   }
   unsigned ilit;
   if (!import->imported) {
@@ -76,7 +84,7 @@ unsigned kissat_import_literal(kissat *solver, int elit) {
     ilit = import_literal(solver, other);
   } while (other++ < eidx);
 
-  if (elit < 0) {
+  if (elit < 0 && ilit != INVALID_LIT) {
     ilit = NOT(ilit);
   }
 

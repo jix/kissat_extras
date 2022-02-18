@@ -1,3 +1,4 @@
+#include "add.h"
 #include "allocate.h"
 #include "backtrack.h"
 #include "error.h"
@@ -258,228 +259,14 @@ void kissat_print_statistics(kissat *solver) {
 
 void kissat_add(kissat *solver, int elit) {
   kissat_require_initialized(solver);
-#if !defined(NDEBUG) || !defined(NPROOFS) || defined(LOGGING)
-  const int checking = kissat_checking(solver);
-  const bool logging = kissat_logging(solver);
-  const bool proving = kissat_proving(solver);
-#endif
+  solver->extended = false;
   if (elit) {
     kissat_require_valid_external_internal(elit);
-#if !defined(NDEBUG) || !defined(NPROOFS) || defined(LOGGING)
-    if (checking || logging || proving) {
-      PUSH_STACK(solver->original, elit);
-    }
-#endif
-    unsigned ilit = kissat_import_literal(solver, elit);
-    unsigned iidx = IDX(ilit);
-
-    kissat_require(
-          !GET(searches) || PROTECT(iidx) || FLAGS(iidx)->fixed,
-          "incremental clauses on unprotected literals not supported");
-
-    const mark mark = MARK(ilit);
-    if (!mark) {
-      const value value = kissat_fixed(solver, ilit);
-      if (value > 0) {
-        if (!solver->clause_satisfied) {
-          LOG("adding root level satisfied literal %u(%d)@0=1",
-                ilit, elit);
-          solver->clause_satisfied = true;
-        }
-      } else if (value < 0) {
-        LOG("adding root level falsified literal %u(%d)@0=-1",
-              ilit, elit);
-        if (!solver->clause_shrink) {
-          solver->clause_shrink = true;
-          LOG("thus original clause needs shrinking");
-        }
-      } else {
-        MARK(ilit) = 1;
-        MARK(NOT(ilit)) = -1;
-        assert(SIZE_STACK(solver->clause) < UINT_MAX);
-        PUSH_STACK(solver->clause, ilit);
-      }
-    } else if (mark < 0) {
-      assert(mark < 0);
-      if (!solver->clause_trivial) {
-        LOG("adding dual literal %u(%d) and %u(%d)",
-              NOT(ilit), -elit, ilit, elit);
-        solver->clause_trivial = true;
-      }
-    } else {
-      assert(mark > 0);
-      LOG("adding duplicated literal %u(%d)", ilit, elit);
-      if (!solver->clause_shrink) {
-        solver->clause_shrink = true;
-        LOG("thus original clause needs shrinking");
-      }
+    if (!kissat_add_external_literal(solver, elit)) {
+      kissat_require(false, "use 'kissat_protect' or 'incremental' option");
     }
   } else {
-#if !defined(NDEBUG) || !defined(NPROOFS) || defined(LOGGING)
-    const size_t offset = solver->offset_of_last_original_clause;
-    size_t esize = SIZE_STACK(solver->original) - offset;
-    int *elits = BEGIN_STACK(solver->original) + offset;
-    assert(esize <= UINT_MAX);
-#endif
-    ADD_UNCHECKED_EXTERNAL(esize, elits);
-    const size_t isize = SIZE_STACK(solver->clause);
-    unsigned *ilits = BEGIN_STACK(solver->clause);
-    assert(isize < (unsigned) INT_MAX);
-
-    if (solver->inconsistent) {
-      LOG("inconsistent thus skipping original clause");
-    } else if (solver->clause_satisfied) {
-      LOG("skipping satisfied original clause");
-    } else if (solver->clause_trivial) {
-      LOG("skipping trivial original clause");
-    } else {
-      kissat_activate_literals(solver, isize, ilits);
-
-      if (!isize) {
-        if (solver->clause_shrink) {
-          LOG("all original clause literals root level falsified");
-        } else {
-          LOG("found empty original clause");
-        }
-
-        if (!solver->inconsistent) {
-          LOG("thus solver becomes inconsistent");
-          solver->inconsistent = true;
-          CHECK_AND_ADD_EMPTY();
-          ADD_EMPTY_TO_PROOF();
-        }
-      } else if (isize == 1) {
-        unsigned unit = TOP_STACK(solver->clause);
-
-        if (solver->clause_shrink) {
-          LOGUNARY(unit, "original clause shrinks to");
-        } else {
-          LOGUNARY(unit, "found original");
-        }
-
-        if (VALUE(unit)) {
-          assert(LEVEL(unit));
-          const unsigned l = LEVEL(unit);
-
-          kissat_backtrack_without_updating_phases(solver, l - 1);
-        }
-
-        kissat_original_unit(solver, unit);
-
-        COVER(solver->level);
-        if (!solver->level) {
-          (void) kissat_search_propagate(solver);
-        }
-      } else {
-        reference res = kissat_new_original_clause(solver);
-
-        const unsigned a = ilits[0];
-        const unsigned b = ilits[1];
-
-        const value u = VALUE(a);
-        const value v = VALUE(b);
-
-        const unsigned k = u ? LEVEL(a) : UINT_MAX;
-        const unsigned l = v ? LEVEL(b) : UINT_MAX;
-
-        bool assign = false;
-
-        if (!u && v < 0) {
-          LOG("original clause immediately forcing");
-          assign = true;
-        } else if (u < 0 && k == l) {
-          LOG("both watches falsified at level @%u", k);
-          assert(v < 0);
-          assert(k > 0);
-          kissat_backtrack_without_updating_phases(solver, k - 1);
-        } else if (u < 0) {
-          LOG("watches falsified at levels @%u and @%u", k, l);
-          assert(v < 0);
-          assert(k > l);
-          assert(l > 0);
-          kissat_backtrack_without_updating_phases(solver, k - 1);
-          assign = true;
-        } else if (u > 0 && v < 0) {
-          LOG("first watch satisfied at level @%u "
-                "second falsified at level @%u", k, l);
-          assert(k <= l);
-        } else if (!u && v > 0) {
-          LOG("first watch unassigned "
-                "second falsified at level @%u", l);
-          assign = true;
-        } else {
-          assert(!u);
-          assert(!v);
-        }
-
-        if (assign) {
-          assert(solver->level > 0);
-
-          if (isize == 2) {
-            assert(res == INVALID_REF);
-            kissat_assign_binary(solver, false, a, b);
-          } else {
-            assert(res != INVALID_REF);
-            clause *c = kissat_dereference_clause(solver, res);
-            kissat_assign_reference(solver, a, res, c);
-          }
-        }
-      }
-    }
-
-#if !defined(NDEBUG) || !defined(NPROOFS)
-    if (solver->clause_satisfied || solver->clause_trivial) {
-#ifndef NDEBUG
-      if (checking > 1) {
-        kissat_remove_checker_external(solver, esize, elits);
-      }
-#endif
-#ifndef NPROOFS
-      if (proving) {
-        if (esize == 1) {
-          LOG("skipping deleting unit from proof");
-        } else {
-          kissat_delete_external_from_proof(solver, esize, elits);
-        }
-      }
-#endif
-    } else if (!solver->inconsistent && solver->clause_shrink) {
-#ifndef NDEBUG
-      if (checking > 1) {
-        kissat_check_and_add_internal(solver, isize, ilits);
-        kissat_remove_checker_external(solver, esize, elits);
-      }
-#endif
-#ifndef NPROOFS
-      if (proving) {
-        kissat_add_lits_to_proof(solver, isize, ilits);
-        kissat_delete_external_from_proof(solver, esize, elits);
-      }
-#endif
-    }
-#endif
-
-#if !defined(NDEBUG) || !defined(NPROOFS) || defined(LOGGING)
-    if (checking) {
-      LOGINTS(esize, elits, "saved original");
-      PUSH_STACK(solver->original, 0);
-      solver->offset_of_last_original_clause =
-            SIZE_STACK(solver->original);
-    } else if (logging || proving) {
-      LOGINTS(esize, elits, "reset original");
-      CLEAR_STACK(solver->original);
-      solver->offset_of_last_original_clause = 0;
-    }
-#endif
-    for (all_stack(unsigned, lit, solver->clause)) {
-      MARK(lit) = MARK(NOT(lit)) = 0;
-    }
-
-    CLEAR_STACK(solver->clause);
-
-    solver->clause_satisfied = false;
-    solver->clause_trivial = false;
-    solver->clause_shrink = false;
+    kissat_finish_external_clause(solver, false);
   }
 }
 
@@ -542,12 +329,14 @@ void kissat_protect(kissat *solver, int elit) {
   kissat_require_valid_external_internal(elit);
 
   unsigned ilit = kissat_import_literal(solver, elit);
+  kissat_require(ilit != INVALID_LIT,
+        "use 'kissat_protect' or 'incremental' option");
   unsigned iidx = IDX(ilit);
-
-  kissat_require(
-        !GET(searches) || PROTECT(iidx) || FLAGS(iidx)->fixed
-        || !FLAGS(iidx)->active,
-        "incremental protection of active unprotected variables not supported");
+  if (GET(searches) && !GET_OPTION(incremental)) {
+    kissat_require(
+          PROTECT(iidx) || FLAGS(iidx)->fixed || !FLAGS(iidx)->active,
+          "use 'kissat_protect' or 'incremental' option");
+  }
 
   kissat_protect_variable(solver, IDX(ilit));
 }

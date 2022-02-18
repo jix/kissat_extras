@@ -12,6 +12,7 @@
 #include "reluctant.h"
 #include "report.h"
 #include "restart.h"
+#include "restore.h"
 #include "terminate.h"
 #include "trail.h"
 #include "walk.h"
@@ -22,7 +23,18 @@ static void start_search(kissat *solver) {
   START(search);
   INC(searches);
 
-  REPORT(0, '*');
+  solver->extended = false;
+
+  if (solver->restore) {
+    REPORT(0, '+');
+    kissat_restore_clauses(solver);
+    REPORT(0, 'r');
+    if (solver->inconsistent) {
+      return;
+    }
+  } else {
+    REPORT(0, '*');
+  }
 
   bool stable = (GET_OPTION(stable) == 2);
 

@@ -83,7 +83,7 @@ void kissat_eager_subsume(kissat *solver) {
     LOGCLS(c, "eagerly subsumed");
     INC(subsumed);
     INC(eager_subsumed);
-    kissat_mark_clause_as_garbage(solver, c);
+    kissat_mark_clause_as_garbage(solver, false, c);
   REMOVE:
     *ref_PTR = INVALID_REF;
   }

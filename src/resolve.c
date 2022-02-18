@@ -36,7 +36,7 @@ static inline unsigned occurrences_literal(kissat *solver, unsigned lit,
       const value value = values[other];
       assert(value >= 0);
       if (value > 0) {
-        kissat_eliminate_binary(solver, lit, other);
+        kissat_eliminate_binary(solver, false, lit, other);
         q--;
       } else {
         res++;
@@ -129,7 +129,7 @@ static bool generate_resolvents(kissat *solver, unsigned lit,
       if (value > 0) {
         first_antecedent_satisfied = true;
         if (c != &tmp0) {
-          kissat_eliminate_clause(solver, c, other);
+          kissat_eliminate_clause(solver, false, c, other);
         }
         break;
       }
@@ -175,7 +175,7 @@ static bool generate_resolvents(kissat *solver, unsigned lit,
         }
         if (value > 0) {
           if (d != &tmp1) {
-            kissat_eliminate_clause(solver, d, other);
+            kissat_eliminate_clause(solver, false, d, other);
           }
           resolvent_satisfied_or_tautological = true;
           break;

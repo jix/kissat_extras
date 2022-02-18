@@ -385,7 +385,7 @@ static void substitute_binaries(kissat *solver, unsigned *repr) {
     const bool redundant = watch.binary.redundant;
     const bool hyper = watch.binary.hyper;
     const unsigned other = watch.binary.lit;
-    kissat_delete_binary(solver, redundant, hyper, lit, other);
+    kissat_delete_binary(solver, redundant, hyper, false, lit, other);
   }
   RELEASE_STACK(delayed_deleted);
 #ifdef CHECKING_OR_PROVING
@@ -474,7 +474,7 @@ static void substitute_clauses(kissat *solver, unsigned *repr) {
       PUSH_STACK(solver->clause, repr_lit);
     }
     if (satisfied || tautological) {
-      kissat_mark_clause_as_garbage(solver, c);
+      kissat_mark_clause_as_garbage(solver, false, c);
       removed++;
     } else if (substitute || shrink) {
       const unsigned size = SIZE_STACK(solver->clause);
@@ -504,7 +504,7 @@ static void substitute_clauses(kissat *solver, unsigned *repr) {
         LOGBINARY(first, second, "substituted %s",
               redundant ? "redundant" : "irredundant");
         kissat_new_binary_clause(solver, redundant, first, second);
-        kissat_mark_clause_as_garbage(solver, c);
+        kissat_mark_clause_as_garbage(solver, false, c);
       } else {
         substituted++;
         LOGCLS(c, "unsubstituted");
@@ -547,7 +547,7 @@ static void substitute_clauses(kissat *solver, unsigned *repr) {
   RELEASE_STACK(units);
   for (all_stack(reference, ref, delayed_garbage)) {
     clause *c = kissat_dereference_clause(solver, ref);
-    kissat_mark_clause_as_garbage(solver, c);
+    kissat_mark_clause_as_garbage(solver, false, c);
   }
   RELEASE_STACK(delayed_garbage);
   LOG("removed %zu substituted large clauses", removed);

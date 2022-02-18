@@ -15,7 +15,7 @@ static bool get_ternary_clause(kissat *solver, reference ref,
   for (all_literals_in_clause(other, clause)) {
     const value value = values[other];
     if (value > 0) {
-      kissat_eliminate_clause(solver, clause, INVALID_LIT);
+      kissat_eliminate_clause(solver, false, clause, INVALID_LIT);
       return false;
     }
     if (value < 0) {
@@ -54,7 +54,7 @@ static bool match_ternary_ref(kissat *solver, reference ref,
   for (all_literals_in_clause(other, clause)) {
     const value value = values[other];
     if (value > 0) {
-      kissat_eliminate_clause(solver, clause, INVALID_LIT);
+      kissat_eliminate_clause(solver, false, clause, INVALID_LIT);
       return false;
     }
     if (value < 0) {

@@ -234,7 +234,7 @@ static void sweep_reference(kissat *solver, sweeper *sweeper,
   for (all_literals_in_clause(lit, c)) {
     const value value = values[lit];
     if (value > 0) {
-      kissat_mark_clause_as_garbage(solver, c);
+      kissat_mark_clause_as_garbage(solver, false, c);
       CLEAR_STACK(sweeper->clause);
       return;
     }

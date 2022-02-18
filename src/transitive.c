@@ -186,7 +186,7 @@ static bool transitive_reduce(kissat *solver,
       REMOVE_WATCHES(*dst_watches, dst_watch);
       kissat_delete_binary(solver,
             src_watch.binary.redundant,
-            src_watch.binary.hyper, src, dst);
+            src_watch.binary.hyper, false, src, dst);
       p->binary.lit = ILLEGAL_LIT;
       reduced++;
       res = true;
