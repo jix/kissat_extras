@@ -127,6 +127,11 @@ static unsigned reuse_trail(kissat *solver) {
     return 0;
   }
 
+  if (!EMPTY_STACK(solver->assumptions)) {
+    // TODO reuse trail with assumptions
+    return 0;
+  }
+
   unsigned res;
 
   if (solver->stable) {

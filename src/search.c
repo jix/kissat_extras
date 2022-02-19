@@ -1,4 +1,5 @@
 #include "analyze.h"
+#include "assume.h"
 #include "bump.h"
 #include "decide.h"
 #include "eliminate.h"
@@ -24,6 +25,11 @@ static void start_search(kissat *solver) {
   INC(searches);
 
   solver->extended = false;
+  if (solver->failed_early) {
+    solver->failed_early = false;
+  } else {
+    CLEAR_STACK(solver->failed);
+  }
 
   if (solver->restore) {
     REPORT(0, '+');
@@ -103,6 +109,8 @@ static void stop_search(kissat *solver, int res) {
     solver->termination.flagged = 0;
   }
 
+  kissat_reset_assumptions(solver);
+
 #ifndef QUIET
   LOG("search result %d", res);
   if (solver->stable) {
@@ -166,7 +174,11 @@ int kissat_search(kissat *solver) {
     } else if (solver->iterating) {
       iterate(solver);
     } else if (!solver->unassigned) {
-      res = 10;
+      if (kissat_assuming(solver)) {
+        res = kissat_assign_assumption(solver);
+      } else {
+        res = 10;
+      }
     } else if (TERMINATED(search_terminated_1)) {
       break;
     } else if (conflict_limit_hit(solver)) {
@@ -185,6 +197,8 @@ int kissat_search(kissat *solver) {
       res = kissat_probe(solver);
     } else if (decision_limit_hit(solver)) {
       break;
+    } else if (kissat_assuming(solver)) {
+      res = kissat_assign_assumption(solver);
     } else {
       kissat_decide(solver);
     }

@@ -1,11 +1,13 @@
 #include "allocate.h"
+#include "backtrack.h"
 #include "decide.h"
 #include "dense.h"
 #include "inline.h"
 #include "phases.h"
 #include "print.h"
-#include "report.h"
 #include "rephase.h"
+#include "report.h"
+#include "propsearch.h"
 #include "terminate.h"
 #include "walk.h"
 
@@ -1159,7 +1161,7 @@ void kissat_walk(kissat *solver) {
 }
 
 int kissat_walk_initially(kissat *solver) {
-  if (solver->inconsistent) {
+  if (solver->inconsistent || !EMPTY_STACK(solver->failed)) {
     return 20;
   }
   if (TERMINATED(walk_terminated_2)) {
@@ -1170,6 +1172,15 @@ int kissat_walk_initially(kissat *solver) {
   }
   if (!kissat_walking(solver)) {
     return 0;
+  }
+  if (solver->level) {
+    kissat_backtrack_without_updating_phases(solver, 0);
+  }
+  if (!kissat_propagated(solver)) {
+    kissat_search_propagate(solver);
+    if (solver->inconsistent) {
+      return 20;
+    }
   }
   walk(solver, true, false);
   REPORT(0, 'W');

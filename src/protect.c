@@ -6,8 +6,8 @@
 #define PROTECT_MAX UINT_MAX
 
 void kissat_protect_variable(kissat *solver, unsigned idx) {
-  assert(!GET(searches) || PROTECT(idx) || FLAGS(idx)->fixed
-        || !FLAGS(idx)->active);
+  assert(GET_OPTION(incremental) || !GET(searches) || PROTECT(idx)
+        || FLAGS(idx)->fixed || !FLAGS(idx)->active);
 
   if (FLAGS(idx)->fixed) {
     LOG("internal %s is fixed, protect does nothing", LOGVAR(idx));

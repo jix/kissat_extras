@@ -1,5 +1,6 @@
 #include "add.h"
 #include "allocate.h"
+#include "assume.h"
 #include "backtrack.h"
 #include "error.h"
 #include "protect.h"
@@ -119,6 +120,9 @@ void kissat_release(kissat *solver) {
   RELEASE_STACK(solver->sorter);
 
   RELEASE_ARRAY(solver->trail, solver->size);
+  RELEASE_STACK(solver->assumptions);
+  RELEASE_STACK(solver->redundant_assumptions);
+  RELEASE_STACK(solver->failed);
 
   RELEASE_STACK(solver->analyzed);
   RELEASE_STACK(solver->levels);
@@ -355,4 +359,43 @@ void kissat_unprotect(kissat *solver, int elit) {
         "variable %u not protected", eidx);
 
   kissat_unprotect_variable(solver, iidx);
+}
+
+void kissat_assume(kissat *solver, int elit) {
+  kissat_require_initialized(solver);
+  kissat_require_valid_external_internal(elit);
+
+  unsigned ilit = kissat_import_literal(solver, elit);
+  kissat_require(ilit != INVALID_LIT,
+        "use 'kissat_protect' or 'incremental' option");
+  unsigned iidx = IDX(ilit);
+  if (!GET_OPTION(incremental)) {
+    kissat_require(
+          PROTECT(iidx) || FLAGS(iidx)->fixed,
+          "use 'kissat_protect' or 'incremental' option");
+  }
+
+  kissat_assume_literal(solver, elit, ilit);
+}
+
+int kissat_failed(kissat *solver, int elit) {
+  kissat_require_initialized(solver);
+  kissat_require_valid_external_internal(elit);
+
+  unsigned low = 0;
+  unsigned high = SIZE_STACK(solver->failed);
+
+  while (low < high) {
+    unsigned mid = (low + high) / 2;
+    int failed = PEEK_STACK(solver->failed, mid);
+    if (failed == elit) {
+      return true;
+    } else if (failed < elit) {
+      low = mid + 1;
+    } else {
+      high = mid;
+    }
+  }
+
+  return false;
 }

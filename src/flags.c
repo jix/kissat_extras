@@ -39,6 +39,7 @@ static inline void deactivate_variable(kissat *solver, flags *f, unsigned idx) {
   assert(f->eliminated || f->fixed);
   assert(!PROTECT(idx));
   f->active = false;
+  f->assumed = 0;
   assert(solver->active > 0);
   solver->active--;
   kissat_dequeue(solver, idx);

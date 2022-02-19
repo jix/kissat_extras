@@ -8,8 +8,10 @@ typedef struct kissat kissat;
 const char *kissat_signature(void);
 kissat *kissat_init(void);
 void kissat_add(kissat *solver, int lit);
+void kissat_assume(kissat *solver, int lit);
 int kissat_solve(kissat *solver);
 int kissat_value(kissat *solver, int lit);
+int kissat_failed(kissat *solver, int lit);
 void kissat_release(kissat *solver);
 
 void kissat_set_terminate(kissat *solver,

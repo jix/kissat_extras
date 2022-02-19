@@ -16,6 +16,7 @@ struct flags {
   bool subsume: 1;
   bool sweep: 1;
   bool transitive: 1;
+  int assumed: 2;
 };
 
 #define FLAGS(IDX) \

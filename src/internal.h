@@ -151,6 +151,11 @@ struct kissat {
   unsigned_array trail;
   unsigned *propagate;
 
+  ints assumptions;
+  ints redundant_assumptions;
+  ints failed;
+  bool failed_early;
+
   unsigned best_assigned;
   unsigned target_assigned;
   unsigned unflushed;
