@@ -14,20 +14,23 @@ static void new_mode_limit(kissat *solver) {
   kissat_init_averages(solver, &AVERAGES);
 
   limits *limits = &solver->limits;
+  search_start *search_start = &solver->search_start;
   statistics *statistics = &solver->statistics;
 
   assert(GET_OPTION(stable) == 1);
 
   if (limits->mode.conflicts) {
     assert(solver->stable);
-    limits->mode.interval = statistics->search_ticks;
+    limits->mode.interval =
+          statistics->search_ticks - search_start->search_ticks;
     limits->mode.conflicts = 0;
   }
 
   const uint64_t interval = limits->mode.interval;
   assert(interval > 0);
 
-  const uint64_t count = (statistics->switched_modes + 1) / 2;
+  const uint64_t count =
+        (statistics->switched_modes - search_start->switched_modes + 1) / 2;
   const uint64_t scaled = interval * kissat_quadratic(count);
   limits->mode.ticks = statistics->search_ticks + scaled;
 #ifndef QUIET

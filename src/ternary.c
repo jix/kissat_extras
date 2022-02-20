@@ -440,7 +440,9 @@ static bool really_ternary(kissat *solver) {
   }
 
   const uint64_t limit = 2 * CLAUSES + kissat_nlogn(1 + CLAUSES);
-  const uint64_t search_ticks = solver->statistics.search_ticks;
+  statistics *statistics = &solver->statistics;
+  const uint64_t search_ticks =
+        statistics->search_ticks;
 
   if (limit >= search_ticks) {
     return false;

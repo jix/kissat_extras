@@ -70,6 +70,14 @@ struct termination {
   int (*volatile terminate)(void *);
 };
 
+typedef struct search_start search_start;
+
+struct search_start {
+#define SAVE(X) uint64_t X;
+  SAVE_AT_SEARCH_START
+#undef SAVE
+};
+
 // *INDENT-OFF*
 
 typedef STACK (value) eliminated;
@@ -214,6 +222,7 @@ struct kissat {
   unsigned walked;
 
   statistics statistics;
+  search_start search_start;
   mode mode;
 
   uint64_t ticks;

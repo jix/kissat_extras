@@ -15,4 +15,5 @@ void kissat_init_averages(kissat *solver, averages *averages) {
   INIT_EMA(slow_glue, GET_OPTION(emaslow));
   INIT_EMA(decision_rate, GET_OPTION(emaslow));
   averages->initialized = true;
+  averages->saved_decisions = DECISIONS;
 }

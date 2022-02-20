@@ -141,13 +141,17 @@ double kissat_sqrt(uint64_t);
 #define NLOGNLOGNLOGN(COUNT) kissat_nlognlognlogn (COUNT)
 #define QUADRATIC(COUNT) kissat_quadratic (COUNT)
 #define SQRT(COUNT) kissat_sqrt (COUNT)
+#define NSQRT(COUNT) kissat_nsqrt (COUNT)
 
 #define INIT_CONFLICT_LIMIT(NAME,SCALE) \
 do { \
   const uint64_t DELTA = GET_OPTION (NAME ## init); \
   const uint64_t SCALED = !(SCALE) ? DELTA : \
     kissat_scale_delta (solver, #NAME, DELTA); \
-  limits->NAME.conflicts = CONFLICTS + SCALED; \
+  const uint64_t INITIAL = CONFLICTS + SCALED; \
+  if (!limits->NAME.conflicts) { \
+    limits->NAME.conflicts = INITIAL; \
+  } \
   kissat_very_verbose (solver, \
     "initial " #NAME " limit of %s conflicts", \
     FORMAT_COUNT (limits->NAME.conflicts)); \

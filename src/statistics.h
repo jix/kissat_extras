@@ -203,6 +203,14 @@ METRIC( xors_eliminated, 1, PCNT_ELIMINATED, "%", "eliminated") \
 METRIC( xors_extracted, 1, PCNT_EXTRACTED, "%", "extracted") \
 
 /*------------------------------------------------------------------------*/
+
+#define SAVE_AT_SEARCH_START \
+  SAVE(search_ticks) \
+  SAVE(switched_modes) \
+  SAVE(restarts) \
+  SAVE(rephased) \
+
+/*------------------------------------------------------------------------*/
 #ifdef METRICS
 
 #define METRIC COUNTER

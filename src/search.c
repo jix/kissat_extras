@@ -19,10 +19,15 @@
 #include "walk.h"
 
 #include <inttypes.h>
+#include <string.h>
 
 static void start_search(kissat *solver) {
   START(search);
   INC(searches);
+
+#define SAVE(X) solver->search_start.X = solver->statistics.X;
+  SAVE_AT_SEARCH_START
+#undef SAVE
 
   solver->extended = false;
   if (solver->failed_early) {
@@ -49,7 +54,12 @@ static void start_search(kissat *solver) {
         "initializing %s search after %" PRIu64 " conflicts",
         (stable ? "stable" : "focus"), CONFLICTS);
 
+  solver->averages[0].initialized = false;
+  solver->averages[1].initialized = false;
+
   kissat_init_averages(solver, &AVERAGES);
+
+  memset(&solver->delays, 0, sizeof(delays));
 
   if (solver->stable) {
     kissat_init_reluctant(solver);

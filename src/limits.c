@@ -224,7 +224,7 @@ static void init_mode_limit(kissat *solver) {
     limits->mode.conflicts = conflicts_limit;
 
     const uint64_t ticks_delta = GET_OPTION(modeticks);
-    const uint64_t ticks_limit = CONFLICTS + ticks_delta;
+    const uint64_t ticks_limit = solver->statistics.search_ticks + ticks_delta;
     limits->mode.ticks = ticks_limit;
 
     kissat_very_verbose(solver, "initial stable mode switching limit "

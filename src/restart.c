@@ -19,7 +19,7 @@ bool kissat_restarting(kissat *solver) {
   if (!solver->level) {
     return false;
   }
-  if (CONFLICTS < solver->limits.restart.conflicts) {
+  if (!solver->stable && CONFLICTS < solver->limits.restart.conflicts) {
     return false;
   }
   if (solver->stable) {
@@ -38,7 +38,8 @@ bool kissat_restarting(kissat *solver) {
 void kissat_new_focused_restart_limit(kissat *solver) {
   assert(!solver->stable);
   limits *limits = &solver->limits;
-  uint64_t restarts = solver->statistics.restarts;
+  uint64_t restarts =
+        solver->statistics.restarts - solver->search_start.restarts;
   uint64_t delta = GET_OPTION(restartint);
   if (restarts) {
     delta += kissat_logn(restarts) - 1;
