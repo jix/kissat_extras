@@ -4,13 +4,30 @@ This is a fork of Armin Biere's Kissat SAT Solver ([arminbiere/kissat]). Kassat
 Extras aims to provide additional functionality currently not available in the
 upstream version of Kissat.
 
+**Warning:** This is a work in progress and has not seen sufficient testing for
+production use.
+
 [arminbiere/kissat]:https://github.com/arminbiere/kissat
 
 ## New Functionality
 
-  * Incremental solving
-    * Currently limited to adding clauses on protected variables
-    * No assumption support yet
+  * Solving under assumptions
+    * Requires use of the incremental solving modes mentioned below
+    * _Current limitation:_ disables trail reuse when assumptions are active
+  * Incremental solving via clause restoration
+    * Enabled via the option `incremental`
+    * Transparent to the user
+    * _Current limitation:_ disables autarky detection
+    * _Planned:_ turn this on by default
+  * Incremental solving using `protect`/`unprotect`
+    * Similar to `freeze`/`meld` but more flexible w.r.t. inprocessing
+    * Allows protecting variables before the first search and fresh
+      variables between searches.
+    * Allows assuming and adding new clauses on protected variables even when
+      `incremental` is off.
+    * Still allows equivalent literal substitution of protected variables
+    * _Planned:_ allow temporary elimination during inprocessing
+    * _Planned:_ user provided constraint propagators on protected variables
   * `compile_commands.json` generation from `./configure`
 
 ## Why a Fork?
