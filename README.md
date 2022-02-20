@@ -30,6 +30,10 @@ production use.
     * _Planned:_ user provided constraint propagators on protected variables
   * `compile_commands.json` generation from `./configure`
 
+Software that wants to be compatible with both, upstream Kissat and Kissat
+Extras, can use the `KISSAT_EXTRAS` preprocessor macro that is defined by this
+fork.
+
 ## Why a Fork?
 
 Currently, the upstream project does not accept external contributions. This
