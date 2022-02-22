@@ -387,6 +387,25 @@ static void autarky_literal(kissat *solver, watches *all_watches,
 static void apply_autarky(kissat *solver, unsigned size, value *autarky) {
   unsigned eliminated = 0;
   watches *all_watches = solver->watches;
+
+  if (GET_OPTION(incremental)) {
+    bool blocking = true;
+    for (all_variables(idx)) {
+      unsigned lit = LIT(idx);
+      const value value = autarky[lit];
+      if (!value) {
+        continue;
+      }
+      if (value < 0) {
+        lit = NOT(lit);
+      }
+      assert(autarky[lit] > 0);
+      int elit = kissat_export_literal(solver, lit);
+      PUSH_STACK(solver->extend, kissat_autarky_extension(blocking, elit));
+      blocking = false;
+    }
+  }
+
   for (all_variables(idx)) {
     unsigned lit = LIT(idx);
     const value value = autarky[lit];
@@ -415,9 +434,6 @@ void kissat_autarky(kissat *solver, char type) {
   }
   if (!solver->enabled.autarky) {
     return;
-  }
-  if (GET_OPTION(incremental)) {
-    return; // TODO lift this restriction
   }
   RETURN_IF_DELAYED(autarky);
   assert(solver->watching);

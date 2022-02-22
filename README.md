@@ -16,7 +16,6 @@ production use.
   * Incremental solving via clause restoration
     * Enabled via the option `incremental`
     * Transparent to the user
-    * _Current limitation:_ disables autarky detection
     * _Planned:_ turn this on by default
   * Incremental solving using `protect`/`unprotect`
     * Similar to `freeze`/`meld` but more flexible w.r.t. inprocessing

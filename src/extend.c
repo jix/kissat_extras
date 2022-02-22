@@ -70,6 +70,7 @@ void kissat_extend(kissat *solver) {
   while (p != begin) {
     unsigned pos = UINT_MAX;
     bool satisfied = false;
+    bool autarky = false;
 
     int eliminated = 0;
     int blocking = 0;
@@ -87,8 +88,12 @@ void kissat_extend(kissat *solver) {
         blocking = elit;
       }
 
-      if (satisfied) {
+      if (autarky || satisfied) {
         continue;
+      }
+
+      if (ext.autarky) {
+        autarky = true;
       }
 
       assert(elit != INT_MIN);
@@ -140,6 +145,11 @@ void kissat_extend(kissat *solver) {
         }
       }
     } while (!blocking);
+
+    if (autarky) {
+      LOGEXT2(size, p, "autarky");
+      continue;
+    }
 
     if (satisfied) {
       LOGEXT2(size, p, "satisfied");

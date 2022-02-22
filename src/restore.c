@@ -1,4 +1,5 @@
 #include "add.h"
+#include "import.h"
 #include "internal.h"
 #include "logging.h"
 #include "restore.h"
@@ -20,6 +21,53 @@ void kissat_restore_clauses(kissat *solver) {
   while (read != end) {
     const extension ext = *read++;
     assert(ext.blocking);
+
+    if (ext.autarky) {
+      extension *const autarky_begin = read - 1;
+
+      while (read != end) {
+        const extension ext = *read;
+        if (ext.blocking) {
+          break;
+        }
+        assert(ext.autarky);
+        read++;
+      }
+
+      bool restore = false;
+
+      for (extension *x = autarky_begin; x != read; x++) {
+        const extension ext = *x;
+        const int elit = ext.lit;
+        const unsigned eidx = ABS(elit);
+
+        import *const import = &PEEK_STACK(solver->import, eidx);
+
+        if (import->eliminated) {
+          assert(import->imported); // autarky lit should never be substituted
+        } else {
+          assert(import->imported);
+          restore = true;
+          break;
+        }
+      }
+
+      if (restore) {
+        LOG("restore autarky of size %u", (unsigned)(read - autarky_begin));
+        for (extension *x = autarky_begin; x != read; x++) {
+          const extension ext = *x;
+          const int elit = ext.lit;
+          LOG("autarky lit %d", elit);
+          kissat_import_literal(solver, elit);
+        }
+      } else {
+        for (extension *x = autarky_begin; x != read; x++) {
+          *write++ = *x;
+        }
+      }
+
+      continue;
+    }
 
     const int elit = ext.lit;
     const unsigned eidx = ABS(elit);
