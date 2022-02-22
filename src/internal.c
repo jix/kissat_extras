@@ -193,11 +193,7 @@ int kissat_set_option(kissat *solver, const char *name, int new_value) {
 #ifndef NOPTIONS
   kissat_require_initialized(solver);
   kissat_require(name, "name zero pointer");
-#ifndef NOPTIONS
-  return kissat_options_set(&solver->options, name, new_value);
-#else
-  return kissat_options_set(name, new_value);
-#endif
+  return kissat_options_set(&solver->options, name, new_value, !GET(searches));
 #else
   (void) solver, (void) new_value;
   return kissat_options_get(name);

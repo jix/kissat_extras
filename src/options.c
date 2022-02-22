@@ -11,7 +11,7 @@
 #ifdef NOPTIONS
 
 static const opt table[] = {
-#define OPTION(N,V,L,H,D) \
+#define OPTION(N,V,L,H,D,F) \
   { #N, (int)(V), D },
   OPTIONS
 #undef OPTION
@@ -20,8 +20,8 @@ static const opt table[] = {
 #else
 
 static const opt table[] = {
-#define OPTION(N,V,L,H,D) \
-  { #N, (int)(V), (int)(L), (int)(H), D },
+#define OPTION(N,V,L,H,D,F) \
+  { #N, (int)(V), (int)(L), (int)(H), D, (bool)(F) },
   OPTIONS
 #undef OPTION
 };
@@ -217,7 +217,7 @@ static void kissat_printf_usage(const char *option, const char *fmt, ...) {
 }
 
 static void check_ranges(void) {
-#define OPTION(N,V,L,H,D) \
+#define OPTION(N,V,L,H,D,F) \
 do { \
   if ((int)(L) > (int)(H)) \
     kissat_fatal ("minimum '%d' of option '%s' above maximum '%d'", \
@@ -235,7 +235,7 @@ do { \
 
 static void check_name_length(void) {
 #ifndef NDEBUG
-#define OPTION(N,V,L,H,D) \
+#define OPTION(N,V,L,H,D,F) \
   if (strlen (#N) + 1 > kissat_options_max_name_buffer_size) \
     kissat_fatal ("option '%s' name length %zu " \
       "exceeds maximum name buffer size %zu", \
@@ -251,11 +251,15 @@ int kissat_options_get(const options *options, const char *name) {
   return p ? *p : 0;
 }
 
-int kissat_options_set_opt(options *options, const opt *o, int value) {
+int kissat_options_set_opt(
+    options *options, const opt *o, int value, bool fixed) {
   assert(kissat_options_begin <= o);
   assert(o < kissat_options_end);
   int *p = (int *) options + (o - table);
   int res = *p;
+  if (o->fixed && !fixed) {
+    return res;
+  }
   if (value == res) {
     return res;
   }
@@ -269,19 +273,20 @@ int kissat_options_set_opt(options *options, const opt *o, int value) {
   return res;
 }
 
-int kissat_options_set(options *options, const char *name, int value) {
+int kissat_options_set(
+      options *options, const char *name, int value, bool fixed) {
   const opt *const o = kissat_options_has(name);
   if (!o) {
     return 0;
   }
-  return kissat_options_set_opt(options, o, value);
+  return kissat_options_set_opt(options, o, value, fixed);
 }
 
 void kissat_init_options(options *options) {
   check_ranges();
   check_name_length();
   check_table_sorted();
-#define OPTION(N,V,L,H,D) \
+#define OPTION(N,V,L,H,D,F) \
   assert ((L) <= (V)); \
   assert ((V) <= (H)); \
   options->N = (V);
@@ -299,7 +304,7 @@ void kissat_options_usage(void) {
   check_table_sorted();
   format format;
   memset(&format, 0, sizeof format);
-#define OPTION(N,V,L,H,D) \
+#define OPTION(N,V,L,H,D,F) \
   do { \
     const bool b = ((L) == 0 && (H) == 1); \
     char buffer[96]; \
@@ -384,7 +389,7 @@ static bool ignore_embedded_option_for_fuzzing(const char *name) {
 }
 
 void kissat_print_embedded_option_list(void) {
-#define OPTION(N,V,L,H,D) \
+#define OPTION(N,V,L,H,D,F) \
   if (!ignore_embedded_option_for_fuzzing (#N)) \
     printf ("c --%s=%d\n", #N, (int) (V));
   OPTIONS
@@ -423,7 +428,7 @@ static bool ignore_range_option_for_fuzzing(const char *name) {
 }
 
 void kissat_print_option_range_list(void) {
-#define OPTION(N,V,L,H,D) \
+#define OPTION(N,V,L,H,D,F) \
   if (!ignore_range_option_for_fuzzing (#N)) \
     printf ("%s %d %d %d\n", #N, (int)(L), (int) (V), (int)(H));
   OPTIONS

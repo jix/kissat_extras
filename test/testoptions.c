@@ -117,18 +117,31 @@ static void test_options_basic(void) {
   assert(opt);
   assert(opt->low == 0);
   assert(opt->high == 1);
-  kissat_options_set_opt(&options, opt, 0);
-  assert(options.eliminate == 0);
-  kissat_options_set_opt(&options, opt, 1);
-  assert(options.eliminate == 1);
-  kissat_options_set_opt(&options, opt, -1);
-  assert(options.eliminate == 0);
-  kissat_options_set_opt(&options, opt, 2);
-  assert(options.eliminate == 1);
-  kissat_options_set_opt(&options, opt, INT_MIN);
-  assert(options.eliminate == 0);
-  kissat_options_set_opt(&options, opt, INT_MAX);
-  assert(options.eliminate == 1);
+  for (int fixed = 0; fixed < 2; fixed++) {
+    kissat_options_set_opt(&options, opt, 0, fixed);
+    assert(options.eliminate == 0);
+    kissat_options_set_opt(&options, opt, 1, fixed);
+    assert(options.eliminate == 1);
+    kissat_options_set_opt(&options, opt, -1, fixed);
+    assert(options.eliminate == 0);
+    kissat_options_set_opt(&options, opt, 2, fixed);
+    assert(options.eliminate == 1);
+    kissat_options_set_opt(&options, opt, INT_MIN, fixed);
+    assert(options.eliminate == 0);
+    kissat_options_set_opt(&options, opt, INT_MAX, fixed);
+    assert(options.eliminate == 1);
+  }
+
+  opt = kissat_options_has("incremental");
+  assert(opt);
+  assert(opt->low == 0);
+  assert(opt->high == 1);
+  kissat_options_set_opt(&options, opt, 0, true);
+  assert(options.incremental == 0);
+  kissat_options_set_opt(&options, opt, 1, true);
+  assert(options.incremental == 1);
+  kissat_options_set_opt(&options, opt, 0, false);
+  assert(options.incremental == 1);
 
   assert(!kissat_options_get(&options, "nonexistingoption"));
 }

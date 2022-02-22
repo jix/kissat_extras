@@ -144,7 +144,7 @@ static const char *parse_dimacs(kissat *solver, strictness strict,
         arg *= sign;
         const opt *const opt = kissat_options_has(name);
         if (opt) {
-          (void) kissat_options_set_opt(&solver->options, opt, arg);
+          (void) kissat_options_set_opt(&solver->options, opt, arg, true);
           kissat_verbose(solver,
                 "parsed embedded option '--%s=%d'",
                 name, arg);
