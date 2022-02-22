@@ -131,7 +131,11 @@ void kissat_finish_external_clause(kissat *solver, bool restored) {
         assert(LEVEL(unit));
         const unsigned l = LEVEL(unit);
 
-        kissat_backtrack_without_updating_phases(solver, l - 1);
+        if (VALUE(unit) > 0) {
+          kissat_backtrack_in_consistent_state(solver, l - 1);
+        } else {
+          kissat_backtrack_without_updating_phases(solver, l - 1);
+        }
       }
 
       kissat_original_unit(solver, unit);
@@ -175,7 +179,7 @@ void kissat_finish_external_clause(kissat *solver, bool restored) {
         LOG("first watch satisfied at level @%u "
               "second falsified at level @%u", k, l);
         if (k > l) {
-          kissat_backtrack_without_updating_phases(solver, k - 1);
+          kissat_backtrack_in_consistent_state(solver, k - 1);
           assign = true;
         }
       } else if (!u && v < 0) {

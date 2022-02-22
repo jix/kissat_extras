@@ -62,7 +62,7 @@ void kissat_assume_literal(kissat *solver, int elit, unsigned ilit) {
   }
 
   if (solver->level) {
-    kissat_backtrack_without_updating_phases(solver, 0);
+    kissat_backtrack_in_consistent_state(solver, 0);
   }
 
   unsigned idx = IDX(ilit);
