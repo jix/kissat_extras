@@ -13,7 +13,6 @@ production use.
 
   * Solving under assumptions
     * Requires use of the incremental solving modes mentioned below
-    * _Current limitation:_ disables trail reuse when assumptions are active
   * Incremental solving via clause restoration
     * Enabled via the option `incremental`
     * Transparent to the user

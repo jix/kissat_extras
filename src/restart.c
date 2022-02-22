@@ -60,8 +60,11 @@ static unsigned reuse_stable_trail(kissat *solver) {
   double decision_score = MAX_SCORE;
   for (all_stack(unsigned, lit, solver->trail)) {
     const unsigned idx = IDX(lit);
-    const double score = kissat_get_heap_score(scores, idx);
     const struct assigned *const a = assigned + idx;
+    if (a->level <= SIZE_STACK(solver->assumptions)) {
+      continue;
+    }
+    const double score = kissat_get_heap_score(scores, idx);
     if (decision_score < score || score < next_idx_score) {
       const unsigned level = a->level;
       return level ? level - 1 : 0;
@@ -82,8 +85,11 @@ static unsigned reuse_focused_trail(kissat *solver) {
   unsigned decision_stamp = UINT_MAX;
   for (all_stack(unsigned, lit, solver->trail)) {
     const unsigned idx = IDX(lit);
-    const unsigned stamp = links[idx].stamp;
     const struct assigned *const a = assigned + idx;
+    if (a->level <= SIZE_STACK(solver->assumptions)) {
+      continue;
+    }
+    const unsigned stamp = links[idx].stamp;
     if (decision_stamp < stamp || stamp < next_idx_stamp) {
       const unsigned level = a->level;
       return level ? level - 1 : 0;
@@ -124,21 +130,17 @@ static unsigned reuse_trail(kissat *solver) {
   assert(solver->level);
   assert(!EMPTY_STACK(solver->trail));
 
-  if (!GET_OPTION(restartreusetrail)) {
-    return 0;
-  }
-
-  if (!EMPTY_STACK(solver->assumptions)) {
-    // TODO reuse trail with assumptions
-    return 0;
-  }
-
   unsigned res;
 
-  if (solver->stable) {
-    res = reuse_stable_trail(solver);
+  if (GET_OPTION(restartreusetrail)) {
+    if (solver->stable) {
+      res = reuse_stable_trail(solver);
+    } else {
+      res = reuse_focused_trail(solver);
+    }
   } else {
-    res = reuse_focused_trail(solver);
+    unsigned assumptions = SIZE_STACK(solver->assumptions);
+    res = MIN(assumptions, solver->level);
   }
 
   LOG("matching trail level %u", res);
