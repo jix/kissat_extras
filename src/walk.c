@@ -406,8 +406,10 @@ static void connect_large_counters(walker *walker, unsigned counter_ref) {
         continue;
       }
       LOGCLS(c, "%s satisfied", LOGLIT(lit));
-      kissat_mark_clause_as_garbage(solver, false, c);
-      assert(c->garbage);
+      if (EMPTY_STACK(solver->assumption_implied)) {
+        kissat_mark_clause_as_garbage(solver, false, c);
+        assert(c->garbage);
+      }
       continue_with_next_clause = true;
       break;
     }
@@ -490,6 +492,12 @@ static void init_walker(kissat *solver, walker *walker,
   walker->saved = solver->values;
   solver->values = kissat_calloc(solver, LITS, 1);
 
+  for (all_stack(unsigned, lit, solver->assumption_implied)) {
+    assert(!walker->saved[lit]);
+    walker->saved[lit] = 1;
+    walker->saved[NOT(lit)] = -1;
+  }
+
   const bits *bits = 0;
   if (use_previous_phase && (bits = kissat_lookup_cache(solver))) {
     import_previous_phases(walker, bits);
@@ -567,6 +575,10 @@ static void release_walker(walker *walker) {
   RELEASE_STACK(walker->trail);
   kissat_free(solver, solver->values, LITS);
   RELEASE_STACK(walker->unsat);
+  for (all_stack(unsigned, lit, solver->assumption_implied)) {
+    walker->saved[lit] = 0;
+    walker->saved[NOT(lit)] = 0;
+  }
   solver->values = walker->saved;
 }
 
@@ -1173,15 +1185,8 @@ int kissat_walk_initially(kissat *solver) {
   if (!kissat_walking(solver)) {
     return 0;
   }
-  if (solver->level) {
-    kissat_backtrack_without_updating_phases(solver, 0);
-  }
-  if (!kissat_propagated(solver)) {
-    kissat_search_propagate(solver);
-    if (solver->inconsistent) {
-      return 20;
-    }
-  }
+  kissat_backtrack_without_updating_phases(solver, 0);
+  assert(kissat_propagated(solver));
   walk(solver, true, false);
   REPORT(0, 'W');
   return 0;

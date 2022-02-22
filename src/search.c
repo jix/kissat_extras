@@ -179,7 +179,11 @@ static bool decision_limit_hit(kissat *solver) {
 
 int kissat_search(kissat *solver) {
   start_search(solver);
-  int res = kissat_walk_initially(solver);
+  int res = kissat_propagate_assumptions(solver);
+  if (!res) {
+    res = kissat_walk_initially(solver);
+  }
+  CLEAR_STACK(solver->assumption_implied);
   while (!res) {
     clause *conflict = kissat_search_propagate(solver);
     if (conflict) {
@@ -203,7 +207,11 @@ int kissat_search(kissat *solver) {
     } else if (kissat_restarting(solver)) {
       kissat_restart(solver);
     } else if (kissat_rephasing(solver)) {
-      kissat_rephase(solver);
+      res = kissat_propagate_assumptions(solver);
+      if (!res) {
+        kissat_rephase(solver);
+      }
+      CLEAR_STACK(solver->assumption_implied);
     } else if (kissat_eliminating(solver)) {
       res = kissat_eliminate(solver);
     } else if (kissat_probing(solver)) {

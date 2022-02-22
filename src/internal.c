@@ -123,6 +123,7 @@ void kissat_release(kissat *solver) {
   RELEASE_STACK(solver->assumptions);
   RELEASE_STACK(solver->redundant_assumptions);
   RELEASE_STACK(solver->failed);
+  RELEASE_STACK(solver->assumption_implied);
 
   RELEASE_STACK(solver->analyzed);
   RELEASE_STACK(solver->levels);

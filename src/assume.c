@@ -6,7 +6,9 @@
 #include "inline.h"
 #include "inlineframes.h"
 #include "internal.h"
+#include "propsearch.h"
 #include "protect.h"
+#include "report.h"
 #include "sort.h"
 
 static inline unsigned imported_literal(kissat *solver, int elit) {
@@ -157,7 +159,7 @@ void analyze_failed_assumptions(kissat *solver, unsigned failing) {
   kissat_reset_only_analyzed_literals(solver);
 }
 
-int kissat_assign_assumption(kissat *solver) {
+int assign_assumption(kissat *solver) {
   while (true) {
     assert(kissat_assuming(solver));
     int elit = PEEK_STACK(solver->assumptions, solver->level);
@@ -176,8 +178,7 @@ int kissat_assign_assumption(kissat *solver) {
         if (!solver->unassigned) {
           return 10;
         }
-        kissat_decide(solver);
-        return 0;
+        return -1;
       }
       PEEK_STACK(solver->assumptions, solver->level) = last_elit;
     } else if (v < 0) {
@@ -202,4 +203,49 @@ int kissat_assign_assumption(kissat *solver) {
       return 0;
     }
   }
+}
+
+int kissat_assign_assumption(kissat *solver) {
+  int res = assign_assumption(solver);
+  if (res < 0) {
+    kissat_decide(solver);
+    return 0;
+  }
+  return res;
+}
+
+static void iterate(kissat *solver) {
+  assert(solver->iterating);
+  solver->iterating = false;
+  REPORT(0, 'i');
+}
+
+int kissat_propagate_assumptions(kissat *solver) {
+  if (solver->inconsistent || !EMPTY_STACK(solver->failed)) {
+    return 20;
+  }
+  int res = 0;
+  while (!res && kissat_assuming(solver)) {
+    clause *conflict = kissat_search_propagate(solver);
+    if (conflict) {
+      res = kissat_analyze(solver, conflict);
+    } else if (solver->iterating) {
+      iterate(solver);
+    } else {
+      res = assign_assumption(solver);
+    }
+  }
+  if (res < 0) {
+    res = 0;
+  }
+  if (!res) {
+    CLEAR_STACK(solver->assumption_implied);
+    for (all_stack(unsigned, lit, solver->trail)) {
+      unsigned l = LEVEL(lit);
+      if (l && l <= SIZE_STACK(solver->assumptions)) {
+        PUSH_STACK(solver->assumption_implied, lit);
+      }
+    }
+  }
+  return res;
 }

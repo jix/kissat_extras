@@ -163,6 +163,7 @@ struct kissat {
   ints redundant_assumptions;
   ints failed;
   bool failed_early;
+  unsigneds assumption_implied;
 
   unsigned best_assigned;
   unsigned target_assigned;
