@@ -5,6 +5,7 @@
 #include "eliminate.h"
 #include "internal.h"
 #include "logging.h"
+#include "mode.h"
 #include "print.h"
 #include "probe.h"
 #include "propsearch.h"
@@ -63,6 +64,7 @@ static void start_search(kissat *solver) {
 
   if (solver->stable) {
     kissat_init_reluctant(solver);
+    kissat_update_scores(solver);
   }
 
   kissat_init_limits(solver);
@@ -135,6 +137,7 @@ static void stop_search(kissat *solver, int res) {
   REPORT(0, type);
 #else
   (void) res;
+  solver->stable = false;
 #endif
 
   STOP(search);

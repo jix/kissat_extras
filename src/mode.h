@@ -22,5 +22,6 @@ struct mode {
 
 bool kissat_switching_search_mode(struct kissat *);
 void kissat_switch_search_mode(struct kissat *);
+void kissat_update_scores(struct kissat *);
 
 #endif
