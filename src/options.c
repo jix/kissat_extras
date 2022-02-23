@@ -1,4 +1,5 @@
 #include "error.h"
+#include "internal.h"
 #include "options.h"
 #include "print.h"
 
@@ -298,7 +299,7 @@ void kissat_init_options(options *options) {
   (((V) == INT_MIN || (V) == INT_MAX) ? \
     "." : kissat_format_value (&format, false, (V)))
 
-void kissat_options_usage(void) {
+void kissat_options_usage(kissat *solver) {
   check_ranges();
   check_name_length();
   check_table_sorted();
@@ -308,16 +309,16 @@ void kissat_options_usage(void) {
   do { \
     const bool b = ((L) == 0 && (H) == 1); \
     char buffer[96]; \
-    if (b) \
-      sprintf (buffer, "--%s=<bool>", #N); \
-    else \
-      { \
-	const char *  low_str = FORMAT_OPTION_LIMIT ((L)); \
-	const char *  high_str = FORMAT_OPTION_LIMIT ((H)); \
-	sprintf (buffer, "--%s=%s..%s", #N, low_str, high_str); \
-      } \
-    const char *  val_str = kissat_format_value (&format, b, (V)); \
-    kissat_printf_usage (buffer, "%s [%s]", D, val_str); \
+    if (b) { \
+      sprintf(buffer, "--%s=<bool>", #N); \
+    } else { \
+      const char *low_str = FORMAT_OPTION_LIMIT((L)); \
+      const char *high_str = FORMAT_OPTION_LIMIT((H)); \
+      sprintf(buffer, "--%s=%s..%s", #N, low_str, high_str); \
+    } \
+    int value = solver ? solver->options.N : (V); \
+    const char *val_str = kissat_format_value(&format, b, value); \
+    kissat_printf_usage(buffer, "%s [%s]", D, val_str); \
   } while (0);
   OPTIONS
 #undef OPTION

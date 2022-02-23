@@ -45,6 +45,7 @@ extern int dump(kissat *);
 int main(int argc, char **argv) {
   int res;
   solver = kissat_init();
+  kissat_set_option(solver, "incremental", 0);
   kissat_init_alarm(kissat_alarm_handler);
   kissat_init_signal_handler(kissat_signal_handler);
   res = kissat_application(solver, argc, argv);

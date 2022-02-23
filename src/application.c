@@ -130,7 +130,7 @@ static void print_common_usage(void) {
   print_common_dimacs_and_proof_usage();
 }
 
-static void print_complete_usage(void) {
+static void print_complete_usage(kissat *solver) {
   printf("usage: kissat [ <option> ... ] [ <dimacs> "
 #ifndef NPROOFS
         "[ <proof> ] "
@@ -215,7 +215,7 @@ static void print_complete_usage(void) {
   kissat_configuration_usage();
   printf("\n");
   printf("Or '<option>' is one of the following long options:\n\n");
-  kissat_options_usage();
+  kissat_options_usage(solver);
 #else
   printf("The solver was configured without options ('--no-options').\n");
   printf("Thus all internal options are fixed and can not be changed.\n");
@@ -233,13 +233,14 @@ static void print_complete_usage(void) {
   print_complete_dimacs_and_proof_usage();
 }
 
-static bool parsed_one_option_and_return_zero_exit_code(char *arg) {
+static bool parsed_one_option_and_return_zero_exit_code(
+      kissat *solver, char *arg) {
   if (!strcmp(arg, "-h")) {
     print_common_usage();
     return true;
   }
   if (!strcmp(arg, "--help")) {
-    print_complete_usage();
+    print_complete_usage(solver);
     return true;
   }
   if (!strcmp(arg, "--banner")) {
@@ -802,7 +803,7 @@ static int run_application(kissat *solver,
       int argc, char **argv, bool *cancel_alarm_ptr) {
   *cancel_alarm_ptr = false;
   if (argc == 2)
-    if (parsed_one_option_and_return_zero_exit_code(argv[1])) {
+    if (parsed_one_option_and_return_zero_exit_code(solver, argv[1])) {
       return 0;
     }
   application application;

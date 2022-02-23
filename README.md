@@ -14,9 +14,8 @@ production use.
   * Solving under assumptions
     * Requires use of the incremental solving modes mentioned below
   * Incremental solving via clause restoration
-    * Enabled via the option `incremental`
+    * Enabled via the option `incremental` (on by default)
     * Transparent to the user
-    * _Planned:_ turn this on by default
   * Incremental solving using `protect`/`unprotect`
     * Similar to `freeze`/`meld` but more flexible w.r.t. inprocessing
     * Allows protecting variables before the first search and fresh

@@ -58,7 +58,7 @@ OPTION( forward, 1, 0, 1, "forward subsumption in BVE", 0) \
 OPTION( forwardeffort, 100, 0, 1e6, "effort in per mille", 0) \
 OPTION( hyper, 1, 0, 1, "on-the-fly hyper binary resolution", 0) \
 OPTION( ifthenelse, 1, 0, 1, "extract and eliminate if-then-else gates", 0) \
-OPTION( incremental, 0, 0, 1, "enable incremental solving", 1) \
+OPTION( incremental, 1, 0, 1, "enable incremental solving", 1) \
 LOGOPT( log, 0, 0, 5, "logging level (1=on,2=more,3=check,4/5=mem)", 0) \
 OPTION( mineffort, 1e4, 0, INT_MAX, "minimum absolute effort", 0) \
 OPTION( minimize, 1, 0, 1, "learned clause minimization", 0) \
@@ -219,7 +219,9 @@ bool kissat_parse_option_value(const char *val_str, int *res_ptr);
 
 #ifndef NOPTIONS
 
-void kissat_options_usage(void);
+struct kissat;
+
+void kissat_options_usage(struct kissat *);
 
 const opt *kissat_options_has(const char *name);
 
