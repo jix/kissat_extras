@@ -265,7 +265,7 @@ int kissat_options_get(const char *name);
 
 #define GET_OPTION(N) kissat_options_ ## N
 
-#define OPTION(N,V,L,H,D) static const int GET_OPTION(N) = (int)(V);
+#define OPTION(N,V,L,H,D,F) static const int GET_OPTION(N) = (int)(V);
 OPTIONS
 #undef OPTION
 #endif
